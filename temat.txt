@@ -1,0 +1,51 @@
+Skład grupy:
+- Adam Rogowski
+- Szymon Sawoń
+
+Temat: Aplikacja do komunikacji tekstowej
+
+Aplikacja będzie pozwalała, na komunikowanie się z użytkownikami przy użyciu
+grupowych kanałów tekstowych. Aplikacja będzie umożliwiać tworzenie kanałów i
+dołączanie (subskrybowanie) do nich. Możliwe również będzie wysyłanie
+wiadomości prywatnych bezpośrednio do innych użytkowników. Wiadomości będą
+mogły zawierać elementy multimedialne (obrazy).
+
+----
+
+Funkcjonalności
+- Logowanie się
+- Tworzenie kanałów
+- Dołączanie do kanałów - przez linki
+- Wysyłanie wiadomości do kanałów
+- Wyświetlanie wiadomości z kanałów
+- Tworzenie adhoc kanałów do PM
+- Wysyłanie obrazów
+
+Page'e:
+- Landing
+- Logowanie
+- Rejetracja
+- Akceptacja zaproszenia 
+- Główny (lista kanałów + wybrany czat)
+
+Layouty:
+- do formularzy i landinga
+- główny
+
+Modele w bazie danych:
+- User
+    - name
+    - avatar (opcjonalnie - może być proc generowany z name)
+    - password_hash
+    - channels (via _UserChannel)
+- Channel
+    - name
+    - topic
+    - admin (User)
+    - messages
+- Message
+    - type
+    - user
+    - channel
+    - content (albo link albo wiadomość tekstowa)
+- _UserChannel
