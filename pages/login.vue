@@ -5,7 +5,7 @@
         <h2 class="text-2xl">Sign in</h2>
       </template>
 
-      <UForm :schema="schema" :state="state" class="space-y-4" @submit="onSubmit">
+      <UForm ref="form" :schema="schema" :state="state" class="space-y-4" @submit="onSubmit">
         <UFormGroup label="Username" name="username">
           <UInput v-model="state.username" />
         </UFormGroup>
@@ -23,8 +23,10 @@
 </template>
 
 <script lang="ts" setup>
-import { object, string, type InferType } from 'yup'
-import type { FormSubmitEvent } from '#ui/types'
+import type { Form, FormSubmitEvent } from '#ui/types';
+import { object, string, type InferType } from 'yup';
+
+const toast = useToast()
 
 const schema = object({
   username: string().required('Required'),
@@ -38,8 +40,23 @@ const state = reactive({
   password: undefined
 })
 
+const form = ref<Form<Schema>>()
+
 async function onSubmit(event: FormSubmitEvent<Schema>) {
-  console.log(event.data)
+  const { username, password } = event.data;
+  try {
+    await $fetch('/api/login', { method: 'POST', body: { username, password } })
+    toast.add({
+      icon: "i-mdi-check-bold", title: "Logged in", timeout: 1000
+    })
+    navigateTo('/')
+  } catch (err) {
+    form.value!.setErrors([{
+      message: "Wrong username or password",
+      path: 'username',
+    }]);
+    console.log(err)
+  }
 }
 </script>
 
