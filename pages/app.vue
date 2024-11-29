@@ -3,7 +3,7 @@
     <ChannelList />
     <h1>Here lives Chat</h1>
   </UContainer>
-    <ChatMessages></ChatMessages>
+  <ChatMessages></ChatMessages>
 </template>
 
 <script lang="ts" setup>
