@@ -1,7 +1,6 @@
+import type { Channel } from "@prisma/client";
 import prisma from "~/lib/prisma";
-import { getUserFromToken } from "~/utils";
-
-import type { Channel } from "@prisma/client"
+import { getCurrentUser } from "~/utils";
 
 interface SubscribedChannelsResult {
   channels?: Channel[],
@@ -10,25 +9,20 @@ interface SubscribedChannelsResult {
 
 
 export default defineEventHandler(async (event): Promise<SubscribedChannelsResult> => {
-  const token = getCookie(event, 'auth-cookie')
-  if (!token) {
-    setResponseStatus(event, 403, "Forbidden");
-    return { err: Error("Not signed in") };
-  }
-  const user = await getUserFromToken(token)
-  if (!user) {
-    setResponseStatus(event, 401, "Forbidden");
-    return { err: Error("Invalid token") };
-  }
+  try {
+    const user = await getCurrentUser(event)
 
-  const res = await prisma.user.findUnique({
-    where: {
-      id: user.id
-    },
-    include: {
-      subscribedChannels: true
-    }
-  })
+    const res = await prisma.user.findUnique({
+      where: {
+        id: user.id
+      },
+      include: {
+        subscribedChannels: true
+      }
+    })
 
-  return { channels: res?.subscribedChannels }
+    return { channels: res?.subscribedChannels }
+  } catch (err) {
+    return { err: err as Error }
+  }
 })
