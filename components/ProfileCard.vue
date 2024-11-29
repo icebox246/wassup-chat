@@ -1,20 +1,14 @@
 <template>
-  <UBadge color="gray" v-if="profile" class="px-3">
+  <UBadge color="gray" v-if="store.currentUser" class="px-3">
     <UAvatar :src="avatarUrl" size="md" />
-    {{ profile.username }}
+    {{ store.currentUser.username }}
   </UBadge>
 </template>
 
 <script lang="ts" setup>
-const { data: profile, refresh } = useFetch('/api/me');
-const authCookie = useCookie('auth-cookie')
+const store = useMyAppStore()
 
-const avatarUrl = computed(() => `https://robohash.org/${profile.value?.username}`)
-
-effect(() => {
-  authCookie.value;
-  refresh()
-})
+const avatarUrl = computed(() => `https://robohash.org/${store.currentUser?.username}`)
 </script>
 
 <style></style>

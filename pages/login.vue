@@ -41,6 +41,7 @@ const state = reactive({
 })
 
 const form = ref<Form<Schema>>()
+const store = useMyAppStore()
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
   const { username, password } = event.data;
@@ -49,6 +50,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     toast.add({
       icon: "i-mdi-check-bold", title: "Logged in", timeout: 1000
     })
+    await store.fetchCurrentUser()
     navigateTo('/')
   } catch (err) {
     form.value!.setErrors([{
