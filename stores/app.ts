@@ -3,9 +3,10 @@ import { defineStore } from 'pinia'
 export const useMyAppStore = defineStore(
   'myAppStore',
   () => {
-    const { data: currentUser, refresh: fetchCurrentUser } = useFetch('/api/me');
+    const { data: currentUser, error: userError, refresh: fetchCurrentUser } = useFetch('/api/me');
     const loggedIn = computed(() => {
-      return currentUser && !currentUser.value?.err
+      console.log(currentUser)
+      return currentUser.value && !userError.value
     })
 
     return { currentUser, fetchCurrentUser, loggedIn }
