@@ -1,6 +1,7 @@
 <template>
-  <UContainer class="flex items-center">
-    <h1>Here lives Chat</h1> 
+  <UContainer class="flex self-stretch items-stretch grow">
+    <ChannelList />
+    <h1>Here lives Chat</h1>
   </UContainer>
 </template>
 
@@ -9,9 +10,9 @@
 definePageMeta({
   middleware: [
     (to, from) => {
-      const store = useMyAppStore() 
+      const store = useMyAppStore()
 
-      if(!store.loggedIn) {
+      if (!store.loggedIn) {
         return navigateTo('/');
       }
     }
@@ -19,6 +20,4 @@ definePageMeta({
 })
 </script>
 
-<style>
-
-</style>
+<style></style>
