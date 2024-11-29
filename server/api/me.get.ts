@@ -1,4 +1,4 @@
-import { getUserFromToken } from "~/utils"
+import { getCurrentUser } from "~/utils"
 
 interface MeResponse {
   id?: number,
@@ -8,17 +8,11 @@ interface MeResponse {
 }
 
 export default defineEventHandler(async (event): Promise<MeResponse> => {
-  const token = getCookie(event, 'auth-cookie')
-  if (!token) {
-    setResponseStatus(event, 403, "Forbidden");
-    return { err: Error("Not signed in") };
+  try {
+    const user = await getCurrentUser(event);
+    const { id, username, registeredDate } = user;
+    return { id, username, registeredDate };
+  } catch (err) {
+    return { err: err as Error };
   }
-  const user = await getUserFromToken(token)
-  if (!user) {
-    setResponseStatus(event, 401, "Forbidden");
-    return { err: Error("Invalid token") };
-  }
-
-  const { id, username, registeredDate } = user;
-  return { id, username, registeredDate };
 })
