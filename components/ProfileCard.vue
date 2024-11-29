@@ -1,15 +1,18 @@
 <template>
-  <UPopover v-if="store.loggedIn && store.currentUser">
-    <UButton color="gray" class="px-3">
-      <UAvatar :src="avatarUrl" size="md" />
-      {{ store.currentUser.username }}
+  <UPopover v-if="store.loggedIn && store.currentUser" :popper="{ arrow: true }">
+    <UButton square :ui="{ rounded: 'rounded-full' }" size="md" variant="outline">
+      <template #leading>
+        <UAvatar :src="avatarUrl" size="md" />
+      </template>
+      <p class="pr-3"> {{ store.currentUser.username }} </p>
     </UButton>
+
     <template #panel>
-      <UCard>
+      <div class="p-4">
         <UButton @click="handleLogout" icon="i-mdi-logout">
           Logout
         </UButton>
-      </UCard>
+      </div>
     </template>
   </UPopover>
 </template>
