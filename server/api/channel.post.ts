@@ -1,7 +1,8 @@
 import prisma from '~/lib/prisma';
-import { createSignedTokenFromPayload, getUserFromToken } from '~/utils';
+import { getUserFromToken } from '~/utils';
+import type { Channel } from '@prisma/client'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async (event): Promise<{ channel?: Channel, err?: Error }> => {
   const token = getCookie(event, 'auth-cookie')
   if (!token) {
     setResponseStatus(event, 403, "Forbidden");
@@ -29,9 +30,9 @@ export default defineEventHandler(async (event) => {
     })
     console.log("created a channel:", channel)
 
-    return 'ok'
-  } catch (e) {
-    console.error("failed to create user:", e)
-    return e
+    return { channel }
+  } catch (err) {
+    console.error("failed to create user:", err)
+    return { err: err as Error }
   }
 })
