@@ -9,7 +9,7 @@
     </UFormGroup>
 
     <UButton type="submit">
-      Create
+      Save
     </UButton>
   </UForm>
 </template>
@@ -27,18 +27,20 @@ const schema = object({
 })
 
 declare global {
-  type ChannelCreationSchema = InferType<typeof schema>
+  type ChannelFormSchema = InferType<typeof schema>
 }
 
-const state = reactive({
-  name: undefined,
-  topic: undefined,
-})
-
-const form = ref<Form<ChannelCreationSchema>>();
+const form = ref<Form<ChannelFormSchema>>();
 
 defineExpose({
   form
+})
+
+const state = defineModel<ChannelFormSchema>("channel", {
+  default: {
+    name: undefined,
+    topic: undefined,
+  }
 })
 </script>
 
