@@ -14,8 +14,9 @@
             icon="i-mdi-cog-outline" color="gray" class="channel-button-settings" />
         </template>
       </UButton>
-      <div v-else v-for="i in 10">
-        <USkeleton class="h-5 min-w-100 m-2" />
+      <div v-else v-for="i in 10" class="flex">
+        <USkeleton class="h-10 w-10 m-2" />
+        <USkeleton class="h-10 grow m-2" />
       </div>
     </div>
   </UContainer>
@@ -37,6 +38,10 @@
       </template>
 
       <ChannelForm v-model:channel="editingState" @submit="onSettingsSubmit" />
+
+      <template #footer>
+        <UButton @click="handleDeleteChannel" icon="i-mdi-trash-can-outline" color="red"> Delete channel </UButton>
+      </template>
     </UCard>
   </UModal>
 </template>
@@ -101,22 +106,41 @@ async function onSettingsSubmit(event: FormSubmitEvent<ChannelFormSchema>) {
     channelSettingsOpen.value = false
     store.currentChannelId = channel.id;
   } catch (err) {
-    form.value?.form!.setErrors([{
-      message: "Failed to create channel",
-      path: 'name',
-    }]);
     console.log(err)
   }
+}
+
+async function handleDeleteChannel() {
+  if (!confirm("Are you sure you want to delete this channel?")) {
+    return;
+  }
+
+  try {
+    const { err } = await $fetch('/api/channel', { method: 'DELETE', body: { id: unref(editingChannelId) } });
+    if (err) {
+      throw Error("Explicitely failed to delete channel", err)
+    }
+    toast.add({
+      icon: "i-mdi-check-bold", title: "Updated channel", timeout: 1000
+    })
+    await store.fetchSubscribedChannels()
+    channelSettingsOpen.value = false
+    store.currentChannelId = null
+  } catch (err) {
+    console.log(err)
+  }
+
 }
 </script>
 
 <style>
 .channel-panel {
-  width: 30vw;
+  width: max(30vw, 40ch);
 }
 
 .channel-button-settings {
   opacity: 0;
+  margin-left: auto;
 }
 
 .channel-button:hover .channel-button-settings {
