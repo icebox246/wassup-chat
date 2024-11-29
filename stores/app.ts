@@ -8,7 +8,8 @@ export const useMyAppStore = defineStore(
       console.log(currentUser)
       return currentUser.value && !userError.value
     })
+    const { data: subscribedChannels, refresh: fetchSubscribedChannels } = useFetch('/api/subscribedChannels')
 
-    return { currentUser, fetchCurrentUser, loggedIn }
+    return { currentUser, fetchCurrentUser, loggedIn, subscribedChannels, fetchSubscribedChannels, }
   },
 )
