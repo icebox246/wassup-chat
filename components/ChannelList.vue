@@ -1,15 +1,18 @@
 <template>
-  <UContainer class="flex flex-col p-4 shadow-md items-stretch">
+  <UContainer class="channel-panel flex flex-col p-4 shadow-md items-stretch">
     <h2 class="text-xl">Channels</h2>
     <UButton @click="channelCreationOpen = true" icon="i-mdi-add"> New </UButton>
-    <UContainer class="flex flex-col p-0 items-stretch grow">
-      <UButton v-for="channel of store.subscribedChannels?.channels" variant="link"
+    <div class="flex flex-col p-0 items-stretch grow">
+      <UButton v-if="store.subscribedChannels" v-for="channel of store.subscribedChannels.channels" variant="link"
         :icon="store.currentChannelId == channel.id ? 'i-mdi-card-text' : 'i-mdi-card-text-outline'"
         :color="store.currentChannelId == channel.id ? 'primary' : 'gray'"
         @click="handleClickOnChannelItem(channel.id)">
         {{ channel.name }} (#{{ channel.id }})
       </UButton>
-    </UContainer>
+      <div v-else v-for="i in 10">
+        <USkeleton class="h-5 min-w-100 m-2" />
+      </div>
+    </div>
   </UContainer>
 
   <UModal v-model="channelCreationOpen">
@@ -61,4 +64,8 @@ async function onSubmit(event: FormSubmitEvent<ChannelCreationSchema>) {
 }
 </script>
 
-<style></style>
+<style>
+.channel-panel {
+  width: 30vw;
+}
+</style>
