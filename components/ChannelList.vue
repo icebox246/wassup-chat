@@ -1,25 +1,27 @@
 <template>
-  <UContainer class="channel-panel flex flex-col p-4 shadow-md items-stretch">
+  <div class="channel-panel flex flex-col p-4 shadow-md items-stretch">
     <h2 class="text-xl">Channels</h2>
-    <UButton @click="channelCreationOpen = true" icon="i-mdi-add"> New </UButton>
     <div class="flex flex-col p-0 items-stretch grow">
-      <UButton v-if="store.subscribedChannels" v-for="channel of store.subscribedChannels.channels" variant="link"
-        :icon="store.currentChannelId == channel.id ? 'i-mdi-card-text' : 'i-mdi-card-text-outline'"
-        :color="store.currentChannelId == channel.id ? 'primary' : 'gray'" @click="handleClickOnChannelItem(channel.id)"
-        class="channel-button">
-        {{ channel.name }} (#{{ channel.id }})
+      <div v-if="store.subscribedChannels?.channels" v-for="channel of store.subscribedChannels.channels">
+        <UButton variant="link" :key="channel.id" :id="channel.id + 'main'"
+          :icon="store.currentChannelId == channel.id ? 'i-mdi-card-text' : 'i-mdi-card-text-outline'"
+          :color="store.currentChannelId == channel.id ? 'primary' : 'gray'"
+          @click="handleClickOnChannelItem(channel.id)" class="channel-button">
+          {{ channel.name }} (#{{ channel.id }})
 
-        <template #trailing>
-          <UButton @click="openSettingsFor(channel.id, channel.name, channel.topic)" variant="link"
-            icon="i-mdi-cog-outline" color="gray" class="channel-button-settings" />
-        </template>
-      </UButton>
-      <div v-else v-for="i in 10" class="flex">
+          <template #trailing>
+            <UButton @click="openSettingsFor(channel.id, channel.name, channel.topic)" :id="channel.id + 'set'"
+              variant="link" icon="i-mdi-cog-outline" color="gray" class="channel-button-settings" />
+          </template>
+        </UButton>
+      </div>
+      <div v-else v-for="i in 10" class="flex flex-row p-0 items-stretch grow">
         <USkeleton class="h-10 w-10 m-2" />
         <USkeleton class="h-10 grow m-2" />
       </div>
     </div>
-  </UContainer>
+    <UButton @click="channelCreationOpen = true" icon="i-mdi-add"> New </UButton>
+  </div>
 
   <UModal v-model="channelCreationOpen">
     <UCard>
@@ -129,7 +131,7 @@ async function handleDeleteChannel() {
     })
     await store.fetchSubscribedChannels()
     channelSettingsOpen.value = false
-    store.currentChannelId = null
+    store.currentChannelId = null;
   } catch (err) {
     console.log(err)
   }

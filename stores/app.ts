@@ -10,8 +10,35 @@ export const useMyAppStore = defineStore(
       return currentUser.value?.me
     })
     const { data: subscribedChannels, refresh: fetchSubscribedChannels } = useFetch('/api/channel/subscribed')
-    const currentChannelId = ref<Number | null>(null)
+    const params = useUrlSearchParams('history', { removeFalsyValues: true });
+    const currentChannel = ref<{
+      id: number;
+      name: string;
+      topic: string | null;
+      adminId: number;
+      createdDate: string;
+    } | null>()
+
+    const _currentChannelId = ref<number | null>(Number.parseInt(params.channelId ? params.channelId.toString() : ""))
+
+    const currentChannelId = computed<number | null>({
+      get: () => _currentChannelId.value,
+      set: (newId) => {
+        _currentChannelId.value = newId
+        if (newId === null) {
+          params.channelId = [];
+        } else {
+          params.channelId = newId.toString();
+        }
+      }
+    })
+
     const { data: currentMessages, refresh: refreshMessages, clear: clearMessages } = useLazyFetch(() => `/api/channel/${currentChannelId.value}/messages`);
+
+    watch(params, async () => {
+      currentChannel.value = subscribedChannels.value?.channels?.find(c => c.id == _currentChannelId.value)
+      await refreshMessages()
+    })
 
     async function fetchCurrentMessages() {
       clearMessages()
@@ -23,7 +50,7 @@ export const useMyAppStore = defineStore(
         throw Error("Empty message");
         return;
       }
-      $fetch(`/api/channel/${currentChannelId?.value}/messages`, {
+      $fetch(`/api/channel/${currentChannelId.value}/messages`, {
         method: "POST",
         body: {
           content, type
@@ -33,6 +60,17 @@ export const useMyAppStore = defineStore(
     }
 
 
-    return { currentUser, fetchCurrentUser, loggedIn, subscribedChannels, fetchSubscribedChannels, currentChannelId, currentMessages, fetchCurrentMessages, sendMessage, }
+    return {
+      currentUser,
+      fetchCurrentUser,
+      loggedIn,
+      subscribedChannels,
+      fetchSubscribedChannels,
+      currentMessages,
+      fetchCurrentMessages,
+      sendMessage,
+      currentChannelId,
+      currentChannel,
+    }
   },
 )
