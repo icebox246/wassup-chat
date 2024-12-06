@@ -1,6 +1,19 @@
 <template>
-  <div class="flex flex-col h-full w-full">
-    <div class="w-full p-4">
+  <div class="flex flex-col w-full max-h-[100vh] overflow-hidden">
+    <header class="flex place-content-between w-full shadow-sm">
+      <h2 class="text-xl p-4" v-if="store.currentChannel">
+        {{ store.currentChannel?.name }}
+      </h2>
+      <h2 class="flex items-center text-xl italic p-4 text-gray-600" v-else>
+        <UIcon name="i-mdi-arrow-left-thin" class="w-8 h-8" color="gray-600" />
+        Select a channel...
+      </h2>
+      <ProfileCard />
+    </header>
+
+    <!-- <main v-if="store.currentChannel" class="flex flex-col"> -->
+
+    <div class="w-full p-4 grow overflow-y-scroll" ref="messagesView">
       <div v-for="message in store.currentMessages?.messages" :key="message.id" class="mb-2">
         <div class="flex items-start" :class="{ 'justify-end': message.authorId == store.currentUser?.me?.id }">
           <UNotification :id="Date.now()" :description="message.content"
@@ -19,7 +32,7 @@
     <div class="w-full p-4">
       <div class="flex flex-row items-center w-full">
         <UInput v-model="newMessage" placeholder="Type your message" class="flex-grow m-2"
-          @keyup.enter="handleSendMessage">
+          @keyup.enter="handleSendMessage" @input="showAlert = false">
           <template #leading>
             <UAvatar :src="currentUserAvatarUrl" size="2xs" />
           </template>
@@ -30,6 +43,8 @@
         <UButton class="m-2" trailing-icon="i-mdi-send" @click="handleSendMessage" />
       </div>
     </div>
+
+    <!-- </main> -->
     <div v-if="showAlert" class="mb-2">
       <UAlert color="red" variant="subtle" icon="i-mdi-alert-rhombus" title="Empty message"
         description="Please enter a message before sending." />
@@ -42,18 +57,25 @@ const store = useMyAppStore()
 const showAlert = ref(false)
 const newMessage = ref('')
 const loadDate = ref(new Date());
+const messagesView = ref();
 
 onMounted(() => {
   loadDate.value = new Date();
+})
+
+watch(store, (_oldValue, _newValue) => {
+  setTimeout(() => messagesView.value.scrollTo(0, messagesView.value.scrollHeight), 100)
 })
 
 const currentUserAvatarUrl = computed(() => `https://robohash.org/${store.currentUser?.me?.username}`)
 
 async function handleSendMessage() {
   try {
-    await store.sendMessage(newMessage.value, "text")
+    await store.sendMessage(newMessage.value, "text");
+    newMessage.value = "";
   } catch (e) {
     console.error("Failed to send message", e)
+    showAlert.value = true
   }
 }
 
