@@ -95,7 +95,9 @@ async function onCreateSubmit(event: FormSubmitEvent<ChannelFormSchema>) {
 async function onSettingsSubmit(event: FormSubmitEvent<ChannelFormSchema>) {
   const { name, topic } = event.data
   try {
-    const { channel, err } = await $fetch('/api/channel', { method: 'PUT', body: { id: unref(editingChannelId), name, topic } });
+    const { channel, err } = await $fetch(`/api/channel/${editingChannelId.value}`, {
+      method: 'PUT', body: { name, topic }
+    });
     if (!channel) {
       throw Error("Explicitely failed to update channel", err)
     }
@@ -116,7 +118,9 @@ async function handleDeleteChannel() {
   }
 
   try {
-    const { err } = await $fetch('/api/channel', { method: 'DELETE', body: { id: unref(editingChannelId) } });
+    const { err } = await $fetch(`/api/channel/${editingChannelId.value}`, {
+      method: 'DELETE'
+    });
     if (err) {
       throw Error("Explicitely failed to delete channel", err)
     }

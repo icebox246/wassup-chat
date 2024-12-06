@@ -31,7 +31,7 @@ export async function getUserFromToken(token: string): Promise<User | null> {
   return await prisma.user.findUnique({ where: { id: payload.id } })
 }
 
-export async function getCurrentUser(event: H3Event) {
+export async function getCurrentUser(event: H3Event): Promise<User> {
   const token = getCookie(event, 'auth-cookie')
   if (!token) {
     setResponseStatus(event, 403, "Forbidden");

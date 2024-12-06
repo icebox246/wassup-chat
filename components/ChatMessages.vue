@@ -1,90 +1,63 @@
 <template>
   <div class="flex flex-col h-full w-full">
     <div class="w-full p-4">
-      <div v-for="message in messages" :key="message.id" class="mb-2">
-        <div class="flex items-start" :class="{'justify-end': message.isCurrentUser}">
-          <UNotification
-            :id="Date.now()"
-            :description="message.content"
-            :avatar="{ src: message.avatar }"
-            :title="message.author"
-            :close-button="
-            { 
-              icon: 'i-mdi-delete-outline', 
-              color: 'primary', variant: 'outline', 
-              padded: true, size: '2xs', 
-              }"
-            class="max-w-md break-words whitespace-normal"
-          />
+      <div v-for="message in store.currentMessages?.messages" :key="message.id" class="mb-2">
+        <div class="flex items-start" :class="{ 'justify-end': message.authorId == store.currentUser?.me?.id }">
+          <UNotification :id="Date.now()" :description="message.content"
+            :avatar="{ src: `https://robohash.org/${message.author.username}` }" :title="message.author.username"
+            :close-button="message.author.id === store.currentUser?.me?.id ? {
+              icon: 'i-mdi-delete-outline',
+              color: 'primary', variant: 'outline',
+              padded: true, size: '2xs',
+            } : { icon: 'none', disabled: true }"
+            :timeout="new Date(message.sentDate).getTime() > loadDate.getTime() - 3000 ? 1000 : 0"
+            class="max-w-md break-words whitespace-normal" />
         </div>
       </div>
     </div>
 
     <div class="w-full p-4">
       <div class="flex flex-row items-center w-full">
-        <UInput 
-          v-model="newMessage" 
-          placeholder="Type your message" 
-          class="flex-grow m-2"
-          @keyup.enter="sendMessage"
-        >
+        <UInput v-model="newMessage" placeholder="Type your message" class="flex-grow m-2"
+          @keyup.enter="handleSendMessage">
           <template #leading>
-            <UAvatar
-              :src="`https://robohash.org/${store.currentUser?.username}`"
-              size="2xs"
-            />
+            <UAvatar :src="currentUserAvatarUrl" size="2xs" />
           </template>
         </UInput>
-        <UDropdown :items="upload_items" :popper="{ placement: 'bottom-start' }">
-          <UButton class= "m-2" trailing-icon="i-mdi-folder-upload" />
+        <UDropdown :items="uploadItems" :popper="{ placement: 'bottom-start' }">
+          <UButton class="m-2" trailing-icon="i-mdi-folder-upload" />
         </UDropdown>
-        <UButton class="m-2" trailing-icon="i-mdi-send" @click="sendMessage" />
+        <UButton class="m-2" trailing-icon="i-mdi-send" @click="handleSendMessage" />
       </div>
     </div>
-      <div v-if="showAlert" class="mb-2">
-        <UAlert
-          color="red"
-          variant="subtle"
-          icon="i-mdi-alert-rhombus"
-          title="Empty message"
-          description="Please enter a message before sending."
-        />
-      </div>
+    <div v-if="showAlert" class="mb-2">
+      <UAlert color="red" variant="subtle" icon="i-mdi-alert-rhombus" title="Empty message"
+        description="Please enter a message before sending." />
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
-
-const store = useMyAppStore() 
-const current_username = store.currentUser?.username
+const store = useMyAppStore()
 const showAlert = ref(false)
-const messages = ref([
-  { id: 1, content: "Hello!", author: "PlaceholderMan", avatar: "https://robohash.org/placeholder", isCurrentUser: false }
-]);
-
-
 const newMessage = ref('')
+const loadDate = ref(new Date());
 
-const sendMessage = () => {
-  if (newMessage.value.trim() === '') 
-  {
-    showAlert.value = true;
-    return;
+onMounted(() => {
+  loadDate.value = new Date();
+})
+
+const currentUserAvatarUrl = computed(() => `https://robohash.org/${store.currentUser?.me?.username}`)
+
+async function handleSendMessage() {
+  try {
+    await store.sendMessage(newMessage.value, "text")
+  } catch (e) {
+    console.error("Failed to send message", e)
   }
-  messages.value.push({
-    id: Date.now(),
-    content: newMessage.value,
-    author: store.currentUser?.username,
-    avatar: `https://robohash.org/${store.currentUser?.username}`,
-    isCurrentUser: true
-  });
-
-  newMessage.value = '';
-  showAlert.value = false;
 }
 
-const upload_items = [
+const uploadItems = [
   [{
     label: 'Upload Image',
     icon: 'i-mdi-file-image-box',
@@ -92,7 +65,7 @@ const upload_items = [
     click: () => {
       console.log('Image Uploaded')
     }
-  }], 
+  }],
   [{
     label: 'Upload File',
     icon: 'i-mdi-paperclip',
@@ -104,5 +77,4 @@ const upload_items = [
 ]
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>
