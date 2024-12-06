@@ -1,6 +1,6 @@
 <template>
   <UPopover v-if="store.loggedIn && store.currentUser" :popper="{ arrow: true }">
-    <UButton square :ui="{ rounded: 'rounded-full' }" size="md" variant="outline">
+    <UButton square size="md" variant="link">
       <template #leading>
         <UAvatar :src="avatarUrl" size="md" />
       </template>
