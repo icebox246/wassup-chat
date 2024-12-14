@@ -4,7 +4,7 @@
       <template #leading>
         <UAvatar :src="avatarUrl" size="md" />
       </template>
-      <p class="pr-3"> {{ store.currentUser.username }} </p>
+      <p class="pr-3"> {{ store.currentUser?.me?.username }} </p>
     </UButton>
 
     <template #panel>
@@ -22,7 +22,7 @@ const store = useMyAppStore()
 
 const toast = useToast()
 
-const avatarUrl = computed(() => `https://robohash.org/${store.currentUser?.username}`)
+const avatarUrl = computed(() => `https://robohash.org/${store.currentUser?.me?.username}`)
 
 async function handleLogout() {
   await $fetch("/api/logout")

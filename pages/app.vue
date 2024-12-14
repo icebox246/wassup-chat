@@ -1,12 +1,14 @@
 <template>
-  <UContainer class="flex self-stretch items-stretch grow">
+  <div class="flex self-stretch items-stretch grow">
     <ChannelList />
-    <h1>Here lives Chat</h1>
-  </UContainer>
+    <ChatMessages />
+  </div>
 </template>
 
 <script lang="ts" setup>
-
+definePageMeta({
+  layout: 'app'
+})
 </script>
 
 <style></style>

@@ -2,11 +2,13 @@ import prisma from '~/lib/prisma';
 import type { Channel } from '@prisma/client'
 import { getCurrentUser } from '~/utils';
 
-export default defineEventHandler(async (event): Promise<{ channel?: Channel, err?: Error }> => {
-  const { id, name, topic } = await readBody(event);
-  console.log(id, name, topic)
-
+export default defineEventHandler(async (event): Promise<{ err?: Error }> => {
   try {
+    const id = Number.parseInt(getRouterParam(event, 'channelId') ?? 'nan');
+    if (isNaN(id)) {
+      throw Error("Invalid channel Id")
+    }
+
     const user = await getCurrentUser(event);
 
     const oldChannel = await prisma.channel.findUnique({
@@ -25,16 +27,13 @@ export default defineEventHandler(async (event): Promise<{ channel?: Channel, er
       return { err: Error("Cannot edit channels belonging to other users") };
     }
 
-    const channel = await prisma.channel.update({
+    const channel = await prisma.channel.delete({
       where: {
         id
       },
-      data: {
-        name, topic
-      }
     })
 
-    return { channel };
+    return {};
   } catch (err) {
     setResponseStatus(event, 500, "Internal error")
     console.error(err)
