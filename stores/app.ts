@@ -10,7 +10,6 @@ export const useMyAppStore = defineStore(
       return currentUser.value?.me
     })
     const { data: subscribedChannels, refresh: fetchSubscribedChannels } = useFetch('/api/channel/subscribed')
-    const params = useUrlSearchParams('history', { removeFalsyValues: true });
     const currentChannel = ref<{
       id: number;
       name: string;
@@ -19,21 +18,13 @@ export const useMyAppStore = defineStore(
       createdDate: string;
     } | null>()
 
-    const currentChannelId = ref<number | null>(params.channelId ? Number.parseInt(params.channelId.toString()) : null)
+    const currentChannelId = ref<number | null>()
 
     const { data: currentMessages, refresh: refreshMessages, clear: clearMessages } = useLazyFetch(() => `/api/channel/${currentChannelId.value}/messages`);
 
-    watch(currentChannelId, async (newId, oldId) => {
-      console.log("currentChannelId:", newId, oldId)
-
+    watch(currentChannelId, async () => {
       currentChannel.value = subscribedChannels.value?.channels?.find(c => c.id == currentChannelId.value)
-      await refreshMessages()
-
-      if (newId === null) {
-        params.channelId = [];
-      } else {
-        params.channelId = newId.toString();
-      }
+      setTimeout(() => refreshMessages(), 10)
     })
 
     async function fetchCurrentMessages() {
@@ -41,18 +32,18 @@ export const useMyAppStore = defineStore(
       await refreshMessages()
     }
 
-    const sendMessage = (content: string, type: string) => {
+    const sendMessage = async (content: string, type: string) => {
       if (!content || content === '') {
         throw Error("Empty message");
         return;
       }
-      $fetch(`/api/channel/${currentChannelId.value}/messages`, {
+      await $fetch(`/api/channel/${currentChannelId.value}/messages`, {
         method: "POST",
         body: {
           content, type
         }
       })
-      refreshMessages()
+      await refreshMessages() // TODO: remove in process of adding websockets
     }
 
 

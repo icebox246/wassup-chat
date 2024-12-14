@@ -63,7 +63,7 @@ onMounted(() => {
   loadDate.value = new Date();
 })
 
-watch(store, (_oldValue, _newValue) => {
+watch(store, () => {
   setTimeout(() => messagesView.value.scrollTo(0, messagesView.value.scrollHeight), 100)
 })
 
