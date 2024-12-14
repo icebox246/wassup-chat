@@ -20,11 +20,26 @@ export const useMyAppStore = defineStore(
 
     const currentChannelId = ref<number | null>()
 
-    const { data: currentMessages, refresh: refreshMessages, clear: clearMessages } = useLazyFetch(() => `/api/channel/${currentChannelId.value}/messages`);
+    const webSocketSendFunctor = ref<((data: string) => boolean) | null>(null)
+
+    const { data: currentMessagesData, refresh: refreshMessages, clear: clearMessages } = useLazyFetch(() => `/api/channel/${currentChannelId.value}/messages`);
+
+    const currentMessages = ref<Array<Message & { author: User }>>()
 
     watch(currentChannelId, async () => {
       currentChannel.value = subscribedChannels.value?.channels?.find(c => c.id == currentChannelId.value)
       setTimeout(() => refreshMessages(), 10)
+    })
+
+    watch(currentMessagesData, (newData) => {
+      if (newData?.err || !newData?.messages) return;
+      currentMessages.value = newData?.messages.map(m => {
+        return {
+          ...m,
+          sentDate: new Date(m.sentDate),
+          author: { ...m.author, registeredDate: new Date(m.author.registeredDate) }
+        }
+      });
     })
 
     async function fetchCurrentMessages() {
@@ -37,13 +52,23 @@ export const useMyAppStore = defineStore(
         throw Error("Empty message");
         return;
       }
-      await $fetch(`/api/channel/${currentChannelId.value}/messages`, {
-        method: "POST",
-        body: {
-          content, type
+      // await $fetch(`/api/channel/${currentChannelId.value}/messages`, {
+      //   method: "POST",
+      //   body: {
+      //     content, type
+      //   }
+      // })
+      // await refreshMessages() // TODO: remove in process of adding websockets
+
+      if (webSocketSendFunctor.value && currentChannelId.value) {
+        const msg: PostMessageSocketMessage = {
+          type: SocketMesageType.post_message,
+          message: {
+            content, type, channel_id: currentChannelId.value
+          }
         }
-      })
-      await refreshMessages() // TODO: remove in process of adding websockets
+        webSocketSendFunctor.value(JSON.stringify(msg))
+      }
     }
 
 
@@ -58,6 +83,7 @@ export const useMyAppStore = defineStore(
       sendMessage,
       currentChannelId,
       currentChannel,
+      webSocketSendFunctor
     }
   },
 )

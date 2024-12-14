@@ -14,7 +14,7 @@
     <!-- <main v-if="store.currentChannel" class="flex flex-col"> -->
 
     <div class="w-full p-4 grow overflow-y-scroll" ref="messagesView">
-      <div v-for="message in store.currentMessages?.messages" :key="message.id" class="mb-2">
+      <div v-for="message in store.currentMessages" :key="message.id" class="mb-2">
         <div class="flex items-start" :class="{ 'justify-end': message.authorId == store.currentUser?.me?.id }">
           <UNotification :id="Date.now()" :description="message.content"
             :avatar="{ src: `https://robohash.org/${message.author.username}` }" :title="message.author.username"
