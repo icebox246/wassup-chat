@@ -19,25 +19,21 @@ export const useMyAppStore = defineStore(
       createdDate: string;
     } | null>()
 
-    const _currentChannelId = ref<number | null>(Number.parseInt(params.channelId ? params.channelId.toString() : ""))
-
-    const currentChannelId = computed<number | null>({
-      get: () => _currentChannelId.value,
-      set: (newId) => {
-        _currentChannelId.value = newId
-        if (newId === null) {
-          params.channelId = [];
-        } else {
-          params.channelId = newId.toString();
-        }
-      }
-    })
+    const currentChannelId = ref<number | null>(params.channelId ? Number.parseInt(params.channelId.toString()) : null)
 
     const { data: currentMessages, refresh: refreshMessages, clear: clearMessages } = useLazyFetch(() => `/api/channel/${currentChannelId.value}/messages`);
 
-    watch(params, async () => {
-      currentChannel.value = subscribedChannels.value?.channels?.find(c => c.id == _currentChannelId.value)
+    watch(currentChannelId, async (newId, oldId) => {
+      console.log("currentChannelId:", newId, oldId)
+
+      currentChannel.value = subscribedChannels.value?.channels?.find(c => c.id == currentChannelId.value)
       await refreshMessages()
+
+      if (newId === null) {
+        params.channelId = [];
+      } else {
+        params.channelId = newId.toString();
+      }
     })
 
     async function fetchCurrentMessages() {
