@@ -17,9 +17,12 @@
       </template>
     </UNotification>
 
-    <template #panel v-if="byMe">
-      <div class="p-4">
-        <UButton @click="deleteMessage" icon="i-mdi-trashcan">
+    <template #panel>
+      <div class="grid gap-2 grid-cols-1 p-4">
+        <UButton @click="copyMessage" icon="i-mdi-content-copy">
+          Copy
+        </UButton>
+        <UButton v-if="byMe" @click="deleteMessage" icon="i-mdi-trashcan" color="red">
           Delete
         </UButton>
       </div>
@@ -31,6 +34,7 @@
 import type { Message, User } from '@prisma/client';
 
 const store = useMyAppStore()
+const toast = useToast()
 
 const loadDate = ref(new Date());
 
@@ -46,6 +50,19 @@ const byMe = computed(() => {
 
 function deleteMessage() {
   store.deleteMessage(props.message.id);
+}
+
+const { copy } = useClipboard();
+
+function copyMessage() {
+  if (props.message.type == "text") {
+    copy(props.message.content);
+    toast.add({ icon: "i-mdi-content-copy", title: "Copied message to clipboard", timeout: 1000 });
+  } else {
+    const [_, url] = props.message.content.split(';');
+    copy(location.origin + url)
+    toast.add({ icon: "i-mdi-content-copy", title: "Copied attachment link to clipboard", timeout: 1000 });
+  }
 }
 </script>
 
