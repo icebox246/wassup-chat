@@ -14,6 +14,9 @@ export default defineEventHandler(async (event): Promise<{ err?: Error }> => {
     const oldChannel = await prisma.channel.findUnique({
       where: {
         id
+      },
+      include: {
+        members: true
       }
     })
 
@@ -27,7 +30,9 @@ export default defineEventHandler(async (event): Promise<{ err?: Error }> => {
       return { err: Error("Cannot edit channels belonging to other users") };
     }
 
-    const channel = await prisma.channel.delete({
+    console.log("disconnecting", JSON.stringify(oldChannel.members))
+
+    await prisma.channel.delete({
       where: {
         id
       },

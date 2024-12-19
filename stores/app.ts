@@ -26,9 +26,13 @@ export const useMyAppStore = defineStore(
 
     const currentMessages = ref<Array<Message & { author: User }>>()
 
-    watch(currentChannelId, async () => {
+    watch(currentChannelId, async (newVal) => {
       currentChannel.value = subscribedChannels.value?.channels?.find(c => c.id == currentChannelId.value)
-      setTimeout(() => refreshMessages(), 10)
+      if (newVal !== null) {
+        setTimeout(() => refreshMessages(), 10)
+      } else {
+        setTimeout(() => currentMessages.value = new Array(), 10)
+      }
     })
 
     watch(currentMessagesData, (newData) => {
