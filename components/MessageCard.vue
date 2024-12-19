@@ -10,7 +10,8 @@
       </template>
 
       <template #description>
-        <span class="dark:text-gray-100 text-gray-800">
+        <FileDownloadButton v-if="message.type == 'file'" :content="message.content" />
+        <span v-else class="dark:text-gray-100 text-gray-800">
           {{ message?.content }}
         </span>
       </template>

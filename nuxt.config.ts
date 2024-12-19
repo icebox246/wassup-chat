@@ -7,5 +7,13 @@ export default defineNuxtConfig({
       websocket: true
     }
   },
-  modules: ['@nuxt/ui', '@pinia/nuxt', '@vueuse/nuxt'],
+  modules: [
+    '@nuxt/ui',
+    '@pinia/nuxt',
+    '@vueuse/nuxt',
+    'nuxt-file-storage',
+  ],
+  fileStorage: {
+    mount: process.env.FILE_STORAGE || (process.cwd() + "/uploads")
+  },
 })

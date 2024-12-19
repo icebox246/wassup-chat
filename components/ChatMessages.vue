@@ -36,6 +36,8 @@
       </div>
     </div>
 
+    <FileMessageModal v-model="showFileUploadModal" />
+
     <!-- </main> -->
     <div v-if="showAlert" class="mb-2">
       <UAlert color="red" variant="subtle" icon="i-mdi-alert-rhombus" title="Empty message"
@@ -49,6 +51,7 @@ const store = useMyAppStore()
 const showAlert = ref(false)
 const newMessage = ref('')
 const messagesView = ref();
+const showFileUploadModal = ref(false);
 
 watch(store, () => {
   setTimeout(() => messagesView.value.scrollTo(0, messagesView.value.scrollHeight), 100)
@@ -80,7 +83,7 @@ const uploadItems = [
     icon: 'i-mdi-paperclip',
     shortcuts: ['F'],
     click: () => {
-      console.log('File Uploaded')
+      showFileUploadModal.value = true;
     }
   }]
 ]

@@ -48,6 +48,9 @@ importers:
       '@types/bcrypt':
         specifier: ^5.0.2
         version: 5.0.2
+      nuxt-file-storage:
+        specifier: ^0.2.9
+        version: 0.2.9(magicast@0.3.5)(rollup@4.27.4)
       prisma:
         specifier: ^6.0.0
         version: 6.0.0
@@ -2610,6 +2613,9 @@ packages:
     resolution: {integrity: sha512-ZVu45nuDrdb7nzKW2kLGY/N1vvFYLLbUVX6gUYw4BApKGGu4+GktTR5o48dGVgMYX9A8chaugl7TL9ZYmwC9Mg==}
     engines: {node: ^16.10.0 || >=18.0.0}
     hasBin: true
+
+  nuxt-file-storage@0.2.9:
+    resolution: {integrity: sha512-egUhvVMSzjFrMiIXcWPLIVMMiP3jq0SWhFGtIUumgqZf6W/P93VCCfQPEn25Ltei7ZkyFKnXluXxvhFG+K/5NA==}
 
   nuxt@3.14.1592:
     resolution: {integrity: sha512-roWAQH4Mb6WY72cNos+YVw0DgTCNAhNygiAMCedM7hbX6ESTR2n3VH7tU0yIWDPe/hfFdii4M4wWTTNHOtS44g==}
@@ -6517,6 +6523,15 @@ snapshots:
       boolbase: 1.0.0
 
   nuxi@3.15.0: {}
+
+  nuxt-file-storage@0.2.9(magicast@0.3.5)(rollup@4.27.4):
+    dependencies:
+      '@nuxt/kit': 3.14.1592(magicast@0.3.5)(rollup@4.27.4)
+      defu: 6.1.4
+    transitivePeerDependencies:
+      - magicast
+      - rollup
+      - supports-color
 
   nuxt@3.14.1592(@parcel/watcher@2.5.0)(@types/node@22.10.1)(drizzle-orm@0.36.4(@prisma/client@6.0.0(prisma@6.0.0))(prisma@6.0.0))(ioredis@5.4.1)(magicast@0.3.5)(rollup@4.27.4)(terser@5.36.0)(typescript@5.7.2)(vite@5.4.11(@types/node@22.10.1)(terser@5.36.0)):
     dependencies:
