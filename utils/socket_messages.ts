@@ -4,6 +4,7 @@ export enum SocketMesageType {
   ping,
   post_message,
   new_message,
+  delete_message
 }
 
 export interface SocketMessage {
@@ -25,6 +26,10 @@ export interface NewMessageSocketMessage extends SocketMessage {
   message: Message & { author: User }
 }
 
+export interface DeleteMessageSocketMessage extends SocketMessage {
+  messageId: number
+}
+
 export function isSocketMessage(message: any): message is SocketMessage {
   return message.type != undefined;
 }
@@ -39,4 +44,8 @@ export function isPostMessageMessage(message: SocketMessage): message is PostMes
 
 export function isNewMessageMessage(message: SocketMessage): message is NewMessageSocketMessage {
   return message.type == SocketMesageType.new_message
+}
+
+export function isDeleteMessageMessage(message: SocketMessage): message is DeleteMessageSocketMessage {
+  return message.type == SocketMesageType.delete_message
 }

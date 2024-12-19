@@ -56,13 +56,6 @@ export const useMyAppStore = defineStore(
         throw Error("Empty message");
         return;
       }
-      // await $fetch(`/api/channel/${currentChannelId.value}/messages`, {
-      //   method: "POST",
-      //   body: {
-      //     content, type
-      //   }
-      // })
-      // await refreshMessages() // TODO: remove in process of adding websockets
 
       if (webSocketSendFunctor.value && currentChannelId.value) {
         const msg: PostMessageSocketMessage = {
@@ -75,6 +68,15 @@ export const useMyAppStore = defineStore(
       }
     }
 
+    const deleteMessage = async (id: number) => {
+      if (webSocketSendFunctor.value) {
+        const msg: DeleteMessageSocketMessage = {
+          type: SocketMesageType.delete_message,
+          messageId: id
+        }
+        webSocketSendFunctor.value(JSON.stringify(msg))
+      }
+    }
 
     return {
       currentUser,
@@ -85,6 +87,7 @@ export const useMyAppStore = defineStore(
       currentMessages,
       fetchCurrentMessages,
       sendMessage,
+      deleteMessage,
       currentChannelId,
       currentChannel,
       webSocketSendFunctor

@@ -1,7 +1,7 @@
 import { User } from "@prisma/client";
 import prisma from "~/lib/prisma";
 import { getTokenFromCookies, getUserFromToken } from "~/utils";
-import { isPingMessage, isPostMessageMessage, isSocketMessage, NewMessageSocketMessage, PostMessageSocketMessage, SocketMesageType } from "~/utils/socket_messages";
+import { DeleteMessageSocketMessage, isDeleteMessageMessage, isPingMessage, isPostMessageMessage, isSocketMessage, NewMessageSocketMessage, PostMessageSocketMessage, SocketMesageType } from "~/utils/socket_messages";
 
 const peerIdToUser = new Map<string, User>
 
@@ -81,6 +81,31 @@ export default defineWebSocketHandler({
       peer.publish(`chan${message.channelId}`, JSON.stringify(msg))
       peer.send(JSON.stringify(msg))
       console.log(`Publishing message on ${message.channelId}`)
+      return;
+    }
+
+    if (isDeleteMessageMessage(data)) {
+      const delMsg = data as DeleteMessageSocketMessage;
+      const msgToDel = await prisma.message.findUnique({
+        where: {
+          id: delMsg.messageId
+        }
+      });
+      if (msgToDel && msgToDel.authorId == user.id) {
+        await prisma.message.delete({
+          where: {
+            id: delMsg.messageId
+          }
+        });
+
+        peer.publish(`chan${msgToDel.channelId}`, JSON.stringify(delMsg));
+        peer.send(JSON.stringify(delMsg));
+        console.log(`Deleting message on ${msgToDel.channelId}`)
+        return;
+      } else {
+        console.warn("Peer requested deletion of invalid message", peer.id, delMsg.messageId)
+      }
+
       return;
     }
 

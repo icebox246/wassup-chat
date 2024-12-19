@@ -56,6 +56,10 @@ watch(wsData, (newVal) => {
       })
     }
   }
+  if (isDeleteMessageMessage(data)) {
+    console.log("Should delete message", data.messageId)
+    store.currentMessages = store.currentMessages?.filter(msg => msg.id !== data.messageId)
+  }
   console.log("Got on websocket: ", data)
 })
 
