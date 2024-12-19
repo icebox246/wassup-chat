@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const config = useRuntimeConfig();
-  const filepath = config.public.fileStorage.mount + filename;
+  const filepath = config.public.fileStorage.mount + "/attachments/" + filename;
 
   try {
     statSync(filepath)
