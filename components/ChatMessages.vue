@@ -14,17 +14,9 @@
     <!-- <main v-if="store.currentChannel" class="flex flex-col"> -->
 
     <div class="w-full p-4 grow overflow-y-scroll" ref="messagesView">
-      <div v-for="message in store.currentMessages?.messages" :key="message.id" class="mb-2">
+      <div v-for="message in store.currentMessages" :key="message.id" class="mb-2">
         <div class="flex items-start" :class="{ 'justify-end': message.authorId == store.currentUser?.me?.id }">
-          <UNotification :id="Date.now()" :description="message.content"
-            :avatar="{ src: `https://robohash.org/${message.author.username}` }" :title="message.author.username"
-            :close-button="message.author.id === store.currentUser?.me?.id ? {
-              icon: 'i-mdi-delete-outline',
-              color: 'primary', variant: 'outline',
-              padded: true, size: '2xs',
-            } : { icon: 'none', disabled: true }"
-            :timeout="new Date(message.sentDate).getTime() > loadDate.getTime() - 3000 ? 1000 : 0"
-            class="max-w-md break-words whitespace-normal" />
+          <MessageCard :message="message" />
         </div>
       </div>
     </div>
@@ -44,6 +36,8 @@
       </div>
     </div>
 
+    <FileMessageModal v-model="showFileUploadModal" />
+
     <!-- </main> -->
     <div v-if="showAlert" class="mb-2">
       <UAlert color="red" variant="subtle" icon="i-mdi-alert-rhombus" title="Empty message"
@@ -56,14 +50,10 @@
 const store = useMyAppStore()
 const showAlert = ref(false)
 const newMessage = ref('')
-const loadDate = ref(new Date());
 const messagesView = ref();
+const showFileUploadModal = ref(false);
 
-onMounted(() => {
-  loadDate.value = new Date();
-})
-
-watch(store, (_oldValue, _newValue) => {
+watch(store, () => {
   setTimeout(() => messagesView.value.scrollTo(0, messagesView.value.scrollHeight), 100)
 })
 
@@ -93,7 +83,7 @@ const uploadItems = [
     icon: 'i-mdi-paperclip',
     shortcuts: ['F'],
     click: () => {
-      console.log('File Uploaded')
+      showFileUploadModal.value = true;
     }
   }]
 ]

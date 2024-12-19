@@ -31,6 +31,13 @@ export async function getUserFromToken(token: string): Promise<User | null> {
   return await prisma.user.findUnique({ where: { id: payload.id } })
 }
 
+export function getTokenFromCookies(cookieString: string): string | null {
+  return cookieString
+    .split("; ")
+    .filter(s => s.startsWith("auth-cookie="))
+    .map(s => s.substring(12)).at(0) ?? null
+}
+
 export async function getCurrentUser(event: H3Event): Promise<User> {
   const token = getCookie(event, 'auth-cookie')
   if (!token) {

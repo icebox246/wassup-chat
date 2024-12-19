@@ -133,6 +133,9 @@ async function handleDeleteChannel() {
     channelSettingsOpen.value = false
     store.currentChannelId = null;
   } catch (err) {
+    toast.add({
+      icon: "i-mdi-alpha-x-circle-outline", title: "Failed to delete channel", timeout: 1000
+    })
     console.log(err)
   }
 

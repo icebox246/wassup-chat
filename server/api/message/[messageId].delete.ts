@@ -4,38 +4,33 @@ import { getCurrentUser } from '~/utils';
 
 export default defineEventHandler(async (event): Promise<{ err?: Error }> => {
   try {
-    const id = Number.parseInt(getRouterParam(event, 'channelId') ?? 'nan');
+    const id = Number.parseInt(getRouterParam(event, 'messageId') ?? 'nan');
     if (isNaN(id)) {
-      throw Error("Invalid channel Id")
+      throw Error("Invalid message Id")
     }
 
     const user = await getCurrentUser(event);
 
-    const oldChannel = await prisma.channel.findUnique({
+    const oldMessage = await prisma.message.findUnique({
       where: {
         id
       },
-      include: {
-        members: true
-      }
     })
 
-    if (!oldChannel) {
+    if (!oldMessage) {
       setResponseStatus(event, 404, "Not Found");
-      return { err: Error("Channel does not exist") };
+      return { err: Error("Message does not exist") };
     }
 
-    if (oldChannel.adminId != user.id) {
+    if (oldMessage.authorId != user.id) {
       setResponseStatus(event, 403, "Forbidden");
-      return { err: Error("Cannot edit channels belonging to other users") };
+      return { err: Error("Cannot remove messages belonging to other users") };
     }
 
-    console.log("disconnecting", JSON.stringify(oldChannel.members))
-
-    await prisma.channel.delete({
+    await prisma.message.delete({
       where: {
         id
-      },
+      }
     })
 
     return {};
@@ -45,3 +40,4 @@ export default defineEventHandler(async (event): Promise<{ err?: Error }> => {
     return { err: err as Error }
   }
 })
+
