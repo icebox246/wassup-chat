@@ -29,10 +29,10 @@ model Channel {
   adminId     Int
   createdDate DateTime @default(now())
 
-  admin    User      @relation("channelAdmin", fields: [adminId], references: [id])
-  members  User[]    @relation("channelMember")
-  messages Message[]
-  inviteCode    String   @unique @default(uuid())
+  admin      User      @relation("channelAdmin", fields: [adminId], references: [id], onDelete: NoAction)
+  members    User[]    @relation("channelMember")
+  messages   Message[] @relatzion("channelMessage")
+  inviteCode String    @unique @default(uuid())
 }
 
 model Message {
@@ -44,5 +44,5 @@ model Message {
   sentDate  DateTime @default(now())
 
   author  User    @relation(fields: [authorId], references: [id])
-  channel Channel @relation(fields: [channelId], references: [id])
+  channel Channel @relation("channelMessage", fields: [channelId], references: [id], onDelete: Cascade)
 }

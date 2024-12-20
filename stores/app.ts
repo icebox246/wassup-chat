@@ -10,7 +10,6 @@ export const useMyAppStore = defineStore(
       return currentUser.value?.me
     })
     const { data: subscribedChannels, refresh: fetchSubscribedChannels } = useFetch('/api/channel/subscribed')
-    const params = useUrlSearchParams('history', { removeFalsyValues: true });
     const currentChannel = ref<{
       id: number;
       name: string;
@@ -19,25 +18,32 @@ export const useMyAppStore = defineStore(
       createdDate: string;
     } | null>()
 
-    const _currentChannelId = ref<number | null>(Number.parseInt(params.channelId ? params.channelId.toString() : ""))
+    const currentChannelId = ref<number | null>()
 
-    const currentChannelId = computed<number | null>({
-      get: () => _currentChannelId.value,
-      set: (newId) => {
-        _currentChannelId.value = newId
-        if (newId === null) {
-          params.channelId = [];
-        } else {
-          params.channelId = newId.toString();
-        }
+    const webSocketSendFunctor = ref<((data: string) => boolean) | null>(null)
+
+    const { data: currentMessagesData, refresh: refreshMessages, clear: clearMessages } = useLazyFetch(() => `/api/channel/${currentChannelId.value}/messages`);
+
+    const currentMessages = ref<Array<Message & { author: User }>>()
+
+    watch(currentChannelId, async (newVal) => {
+      currentChannel.value = subscribedChannels.value?.channels?.find(c => c.id == currentChannelId.value)
+      if (newVal !== null) {
+        setTimeout(() => refreshMessages(), 10)
+      } else {
+        setTimeout(() => currentMessages.value = new Array(), 10)
       }
     })
 
-    const { data: currentMessages, refresh: refreshMessages, clear: clearMessages } = useLazyFetch(() => `/api/channel/${currentChannelId.value}/messages`);
-
-    watch(params, async () => {
-      currentChannel.value = subscribedChannels.value?.channels?.find(c => c.id == _currentChannelId.value)
-      await refreshMessages()
+    watch(currentMessagesData, (newData) => {
+      if (newData?.err || !newData?.messages) return;
+      currentMessages.value = newData?.messages.map(m => {
+        return {
+          ...m,
+          sentDate: new Date(m.sentDate),
+          author: { ...m.author, registeredDate: new Date(m.author.registeredDate) }
+        }
+      });
     })
 
     async function fetchCurrentMessages() {
@@ -45,20 +51,32 @@ export const useMyAppStore = defineStore(
       await refreshMessages()
     }
 
-    const sendMessage = (content: string, type: string) => {
+    const sendMessage = async (content: string, type: string) => {
       if (!content || content === '') {
         throw Error("Empty message");
         return;
       }
-      $fetch(`/api/channel/${currentChannelId.value}/messages`, {
-        method: "POST",
-        body: {
-          content, type
+
+      if (webSocketSendFunctor.value && currentChannelId.value) {
+        const msg: PostMessageSocketMessage = {
+          type: SocketMesageType.post_message,
+          message: {
+            content, type, channel_id: currentChannelId.value
+          }
         }
-      })
-      refreshMessages()
+        webSocketSendFunctor.value(JSON.stringify(msg))
+      }
     }
 
+    const deleteMessage = async (id: number) => {
+      if (webSocketSendFunctor.value) {
+        const msg: DeleteMessageSocketMessage = {
+          type: SocketMesageType.delete_message,
+          messageId: id
+        }
+        webSocketSendFunctor.value(JSON.stringify(msg))
+      }
+    }
 
     return {
       currentUser,
@@ -69,8 +87,10 @@ export const useMyAppStore = defineStore(
       currentMessages,
       fetchCurrentMessages,
       sendMessage,
+      deleteMessage,
       currentChannelId,
       currentChannel,
+      webSocketSendFunctor
     }
   },
 )
