@@ -42,14 +42,21 @@
       <ChannelForm v-model:channel="editingState" @submit="onSettingsSubmit" />
 
       <template #footer>
-        <UButton @click="handleDeleteChannel" icon="i-mdi-trash-can-outline" color="red"> Delete channel </UButton>
-      </template>
+  <div class="flex flex-col gap-2">
+    <div v-if="inviteLink" class="flex items-center gap-2">
+      <input class="input w-full" type="text" :value="inviteLink" readonly />
+      <UButton @click="copyInviteLink" color="primary" icon="i-mdi-content-copy">Copy</UButton>
+    </div>
+    <UButton @click="handleDeleteChannel" icon="i-mdi-trash-can-outline" color="red"> Delete channel </UButton>
+  </div>
+</template>
     </UCard>
   </UModal>
 </template>
 
 <script lang="ts" setup>
 import type { Form, FormSubmitEvent } from '#ui/types';
+import type { Channel } from '@prisma/client';
 
 const store = useMyAppStore()
 const toast = useToast()
@@ -58,6 +65,7 @@ const channelCreationOpen = ref(false);
 const channelSettingsOpen = ref(false);
 const editingChannelId = ref(0);
 const editingState = ref<ChannelFormSchema>({ name: 'foobar', topic: undefined });
+const inviteLink = ref<string | null>(null);
 
 const form = ref<{ form: Form<ChannelFormSchema> }>()
 
@@ -65,11 +73,23 @@ function handleClickOnChannelItem(channelId: number) {
   store.currentChannelId = channelId;
 }
 
-function openSettingsFor(id: number, name: string, topic: string | null) {
+async function openSettingsFor(id: number, name: string, topic: string | null) {
   channelSettingsOpen.value = true;
   editingChannelId.value = id;
   editingState.value.name = name;
   editingState.value.topic = topic ?? undefined;
+  try {
+    const { channel, err } = await $fetch(`/api/channel/${editingChannelId.value}`, {
+      method: 'PUT', body: { name, topic }
+    });
+    if (channel) {
+      inviteLink.value = `${location.origin}/invite?inviteCode=${channel.inviteCode}`;
+    } else {
+      throw new Error('Channel data is undefined');
+    }
+  } catch (err) {
+    inviteLink.value = null;
+  }
 }
 
 async function onCreateSubmit(event: FormSubmitEvent<ChannelFormSchema>) {
@@ -139,6 +159,16 @@ async function handleDeleteChannel() {
     console.log(err)
   }
 
+}
+async function copyInviteLink() {
+  if (inviteLink.value) {
+    try {
+      await navigator.clipboard.writeText(inviteLink.value);
+      toast.add({ icon: "i-mdi-check-bold", title: "Invite link copied", timeout: 2000 });
+    } catch (err) {
+      toast.add({ icon: "i-mdi-alert", title: "Failed to copy invite link", timeout: 2000 });
+    }
+  }
 }
 </script>
 
