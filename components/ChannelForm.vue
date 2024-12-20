@@ -1,14 +1,14 @@
 <template>
   <UForm ref="form" :schema="schema" :state="state" class="space-y-4">
     <UFormGroup label="Name" name="name">
-      <UInput v-model="state.name" />
+      <UInput v-model="state.name" :disabled="!mine" />
     </UFormGroup>
 
     <UFormGroup label="Topic" name="topic">
-      <UTextarea v-model="state.topic" />
+      <UTextarea v-model="state.topic" :disabled="!mine" />
     </UFormGroup>
 
-    <UButton type="submit">
+    <UButton type="submit" :disabled="!mine">
       Save
     </UButton>
   </UForm>
@@ -43,6 +43,10 @@ const state = defineModel<ChannelFormSchema>("channel", {
     topic: undefined,
   }
 })
+
+const props = defineProps<{
+  mine: boolean
+}>()
 </script>
 
 <style></style>

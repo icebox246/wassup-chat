@@ -29,7 +29,7 @@
         <h2 class="text-3xl">Create channel</h2>
       </template>
 
-      <ChannelForm ref="form" @submit="onCreateSubmit" />
+      <ChannelForm :mine="true" ref="form" @submit="onCreateSubmit" />
     </UCard>
   </UModal>
 
@@ -39,17 +39,17 @@
         <h2 class="text-3xl">Manage channel</h2>
       </template>
 
-      <ChannelForm v-model:channel="editingState" @submit="onSettingsSubmit" />
+      <ChannelForm :mine="store.currentChannel?.adminId == store.currentUser?.me?.id" v-model:channel="editingState"
+        @submit="onSettingsSubmit" />
 
-      <template #footer>
-  <div class="flex flex-col gap-2">
-    <div v-if="inviteLink" class="flex items-center gap-2">
-      <input class="input w-full" type="text" :value="inviteLink" readonly />
-      <UButton @click="copyInviteLink" color="primary" icon="i-mdi-content-copy">Copy</UButton>
-    </div>
-    <UButton @click="handleDeleteChannel" icon="i-mdi-trash-can-outline" color="red"> Delete channel </UButton>
-  </div>
-</template>
+      <template v-if="store.currentChannel?.adminId == store.currentUser?.me?.id" #footer>
+        <div class="flex gap-6">
+          <UButton v-if="inviteLink" @click="copyInviteLink" color="primary" icon="i-mdi-account-multiple-plus-outline">
+            Copy invite link
+          </UButton>
+          <UButton @click="handleDeleteChannel" icon="i-mdi-trash-can-outline" color="red"> Delete channel </UButton>
+        </div>
+      </template>
     </UCard>
   </UModal>
 </template>
