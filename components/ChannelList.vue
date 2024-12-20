@@ -50,6 +50,12 @@
           <UButton @click="handleDeleteChannel" icon="i-mdi-trash-can-outline" color="red"> Delete channel </UButton>
         </div>
       </template>
+      <template v-else #footer>
+        <div class="flex gap-6">
+          <UButton @click="handleUnsubscribeChannel" icon="i-mdi-logout" color="red"> Unsubscribe channel
+          </UButton>
+        </div>
+      </template>
     </UCard>
   </UModal>
 </template>
@@ -158,8 +164,8 @@ async function handleDeleteChannel() {
     })
     console.log(err)
   }
-
 }
+
 async function copyInviteLink() {
   if (inviteLink.value) {
     try {
@@ -168,6 +174,21 @@ async function copyInviteLink() {
     } catch (err) {
       toast.add({ icon: "i-mdi-alert", title: "Failed to copy invite link", timeout: 2000 });
     }
+  }
+}
+
+async function handleUnsubscribeChannel() {
+  try {
+    await $fetch("/api/channel/subscribed", { method: "DELETE", body: { channelId: store.currentChannelId } });
+    channelSettingsOpen.value = false;
+    store.currentChannelId = null;
+    await store.fetchSubscribedChannels()
+    // TODO: notify websockets to unsubscribe
+  } catch (e) {
+    toast.add({
+      icon: "i-mdi-alpha-x-circle-outline", title: "Failed to unsubscribe channel", timeout: 1000
+    })
+    console.error(e);
   }
 }
 </script>
