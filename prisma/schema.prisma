@@ -25,12 +25,14 @@ model Channel {
   id          Int      @id @default(autoincrement())
   name        String
   topic       String?
+  isDirect    Boolean  @default(false)
   adminId     Int
   createdDate DateTime @default(now())
 
   admin    User      @relation("channelAdmin", fields: [adminId], references: [id])
   members  User[]    @relation("channelMember")
   messages Message[]
+  inviteCode    String   @unique @default(uuid())
 }
 
 model Message {
