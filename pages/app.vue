@@ -44,12 +44,13 @@ watch(wsData, (newVal) => {
   }
   if (isNewMessageMessage(data)) {
     console.log("Got new message", data.message)
+    data.message.sentDate = new Date(data.message.sentDate);
     if (data.message.channelId === store.currentChannelId) {
       store.currentMessages?.push(data.message)
     } else {
       // TODO: show notification using system notifications
       toast.add({
-        title: `${data.message.author.username} @ ${data.message.channelId}`,
+        title: `${data.message.author.username} @ ${store.subscribedChannels?.channels?.find(c => c.id == data.message.channelId)?.name}`,
         description: data.message.content,
         timeout: 3000,
         avatar: { src: `https://robohash.org/${data.message.author.username}` }
