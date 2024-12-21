@@ -21,6 +21,7 @@ export const useMyAppStore = defineStore(
     const currentChannelId = ref<number | null>()
 
     const webSocketSendFunctor = ref<((data: string) => boolean) | null>(null)
+    const webSocketReconnectFunctor = ref<(() => void) | null>(null)
 
     const { data: currentMessagesData, refresh: refreshMessages, clear: clearMessages } = useLazyFetch(() => `/api/channel/${currentChannelId.value}/messages`);
 
@@ -90,7 +91,8 @@ export const useMyAppStore = defineStore(
       deleteMessage,
       currentChannelId,
       currentChannel,
-      webSocketSendFunctor
+      webSocketSendFunctor,
+      webSocketReconnectFunctor
     }
   },
 )

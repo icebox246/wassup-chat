@@ -1,12 +1,8 @@
 <template>
   <div class="flex flex-col w-full max-h-[100vh] overflow-hidden">
     <header class="flex place-content-between w-full shadow-sm">
-      <h2 class="text-xl p-4" v-if="store.currentChannel">
+      <h2 class="text-xl p-4">
         {{ store.currentChannel?.name }}
-      </h2>
-      <h2 class="flex items-center text-xl italic p-4 text-gray-600" v-else>
-        <UIcon name="i-mdi-arrow-left-thin" class="w-8 h-8" color="gray-600" />
-        Select a channel...
       </h2>
       <ProfileCard />
     </header>
@@ -14,6 +10,13 @@
     <!-- <main v-if="store.currentChannel" class="flex flex-col"> -->
 
     <div class="w-full p-4 grow overflow-y-scroll" ref="messagesView">
+      <div v-if="!store.currentChannel" class="flex flex-col justify-center text-center text-gray-600 h-full">
+        No channel selected <br>
+        <div class="p-6 flex items-center justify-center">
+          <UIcon name="i-mdi-arrow-left-thin" class="text-3xl" color="gray-600" />
+          Select a channel
+        </div>
+      </div>
       <div v-for="message in store.currentMessages" :key="message.id" class="mb-2">
         <div class="flex items-start" :class="{ 'justify-end': message.authorId == store.currentUser?.me?.id }">
           <MessageCard :message="message" />
@@ -21,7 +24,7 @@
       </div>
     </div>
 
-    <div class="w-full p-4">
+    <div class="w-full p-4" v-if="store.currentChannel != null">
       <div class="flex flex-row items-center w-full">
         <UInput v-model="newMessage" placeholder="Type your message" class="flex-grow m-2"
           @keyup.enter="handleSendMessage" @input="showAlert = false">

@@ -21,7 +21,7 @@ watch(() => store.currentChannelId, (newId) => {
   }
 })
 
-const { status: wsStatus, data: wsData, send: wsSend } = useWebSocket("/api/channel/ws", {
+const { status: wsStatus, data: wsData, send: wsSend, close: wsClose, open: wsOpen } = useWebSocket("/api/channel/ws", {
   heartbeat: {
     message: JSON.stringify({ type: SocketMesageType.ping }),
     interval: 1000,
@@ -71,6 +71,10 @@ onMounted(async () => {
       ? store.subscribedChannels.channels[0].id
       : null)
   store.webSocketSendFunctor = wsSend
+  store.webSocketReconnectFunctor = () => {
+    wsClose()
+    wsOpen()
+  }
 })
 
 </script>

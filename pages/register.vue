@@ -21,6 +21,10 @@
         <UButton type="submit">
           Register
         </UButton>
+
+        <ULink class="block text-primary" to="/login">
+          Sign into existing account
+        </ULink>
       </UForm>
     </UCard>
   </UContainer>

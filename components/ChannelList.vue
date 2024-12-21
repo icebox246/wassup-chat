@@ -183,7 +183,7 @@ async function handleUnsubscribeChannel() {
     channelSettingsOpen.value = false;
     store.currentChannelId = null;
     await store.fetchSubscribedChannels()
-    // TODO: notify websockets to unsubscribe
+    store.webSocketReconnectFunctor?.call(globalThis)
   } catch (e) {
     toast.add({
       icon: "i-mdi-alpha-x-circle-outline", title: "Failed to unsubscribe channel", timeout: 1000

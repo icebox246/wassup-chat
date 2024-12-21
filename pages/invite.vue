@@ -39,6 +39,7 @@ async function joinChannel() {
     router.replace(`/app?channelId=${channel.value.id}`);
   } catch (err) {
     toast.add({ icon: "i-mdi-alert", title: "Failed to join channel", timeout: 2000 });
+    router.push(`/login`);
   }
 }
 
