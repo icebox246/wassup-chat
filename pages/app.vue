@@ -48,13 +48,19 @@ watch(wsData, (newVal) => {
     if (data.message.channelId === store.currentChannelId) {
       store.currentMessages?.push(data.message)
     } else {
-      // TODO: show notification using system notifications
-      toast.add({
-        title: `${data.message.author.username} @ ${store.subscribedChannels?.channels?.find(c => c.id == data.message.channelId)?.name}`,
-        description: data.message.content,
-        timeout: 3000,
-        avatar: { src: `https://robohash.org/${data.message.author.username}` }
-      })
+      const title = `${data.message.author.username} @ ${store.subscribedChannels?.channels?.find(c => c.id == data.message.channelId)?.name}`;
+      const body = data.message.type == "text" ? data.message.content : "Sent an attachment";
+      const icon = `https://robohash.org/${data.message.author.username}`
+      if (isSystemNofiticationsAllowed()) {
+        showNotification(title, body, icon)
+      } else {
+        toast.add({
+          title,
+          description: body,
+          timeout: 3000,
+          avatar: { src: icon }
+        })
+      }
     }
   }
   if (isDeleteMessageMessage(data)) {
@@ -76,6 +82,7 @@ onMounted(async () => {
     wsClose()
     wsOpen()
   }
+  requestNotificationPermission()
 })
 
 </script>
