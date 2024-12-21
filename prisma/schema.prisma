@@ -31,7 +31,7 @@ model Channel {
 
   admin      User      @relation("channelAdmin", fields: [adminId], references: [id], onDelete: NoAction)
   members    User[]    @relation("channelMember")
-  messages   Message[] @relatzion("channelMessage")
+  messages   Message[] @relation("channelMessage")
   inviteCode String    @unique @default(uuid())
 }
 

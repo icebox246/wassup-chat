@@ -1,5 +1,7 @@
 <template>
-  <div class="channel-panel flex flex-col p-4 shadow-md items-stretch">
+  <div
+    class="fixed z-40 sm:relative h-full bg-gray-100 dark:bg-gray-900 channel-panel flex flex-col p-4 shadow-md items-stretch dark:border-r border-gray-700 transition-transform"
+    :class="expanded ? '' : 'phidden'" ref="panel">
     <h2 class="text-xl">Channels</h2>
     <div class="flex flex-col p-0 items-stretch grow">
       <div v-if="store.subscribedChannels?.channels" v-for="channel of store.subscribedChannels.channels">
@@ -21,6 +23,9 @@
       </div>
     </div>
     <UButton @click="channelCreationOpen = true" icon="i-mdi-add"> New </UButton>
+
+    <UButton class="absolute sm:hidden top-[6em] right-[1em] transition-transform expand-button"
+      icon="i-mdi-chevron-double-left" @click="expanded = !expanded" />
   </div>
 
   <UModal v-model="channelCreationOpen">
@@ -29,7 +34,7 @@
         <h2 class="text-3xl">Create channel</h2>
       </template>
 
-      <ChannelForm ref="form" @submit="onCreateSubmit" />
+      <ChannelForm :mine="true" ref="form" @submit="onCreateSubmit" />
     </UCard>
   </UModal>
 
@@ -39,24 +44,35 @@
         <h2 class="text-3xl">Manage channel</h2>
       </template>
 
-      <ChannelForm v-model:channel="editingState" @submit="onSettingsSubmit" />
+      <ChannelForm :mine="store.currentChannel?.adminId == store.currentUser?.me?.id" v-model:channel="editingState"
+        @submit="onSettingsSubmit" />
 
-      <template #footer>
-  <div class="flex flex-col gap-2">
-    <div v-if="inviteLink" class="flex items-center gap-2">
-      <input class="input w-full" type="text" :value="inviteLink" readonly />
-      <UButton @click="copyInviteLink" color="primary" icon="i-mdi-content-copy">Copy</UButton>
-    </div>
-    <UButton @click="handleDeleteChannel" icon="i-mdi-trash-can-outline" color="red"> Delete channel </UButton>
-  </div>
-</template>
+      <template v-if="store.currentChannel?.adminId == store.currentUser?.me?.id" #footer>
+        <div class="flex gap-6">
+          <UButton v-if="inviteLink" @click="copyInviteLink" color="primary" icon="i-mdi-account-multiple-plus-outline">
+            Copy invite link
+          </UButton>
+          <UButton @click="handleDeleteChannel" icon="i-mdi-trash-can-outline" color="red"> Delete channel </UButton>
+        </div>
+      </template>
+      <template v-else #footer>
+        <div class="flex gap-6">
+          <UButton @click="handleUnsubscribeChannel" icon="i-mdi-logout" color="red"> Unsubscribe channel
+          </UButton>
+        </div>
+      </template>
     </UCard>
   </UModal>
 </template>
 
 <script lang="ts" setup>
 import type { Form, FormSubmitEvent } from '#ui/types';
-import type { Channel } from '@prisma/client';
+
+const expanded = ref(true);
+const panel = ref();
+useResizeObserver(panel, () => {
+  expanded.value = true;
+})
 
 const store = useMyAppStore()
 const toast = useToast()
@@ -158,8 +174,8 @@ async function handleDeleteChannel() {
     })
     console.log(err)
   }
-
 }
+
 async function copyInviteLink() {
   if (inviteLink.value) {
     try {
@@ -170,6 +186,21 @@ async function copyInviteLink() {
     }
   }
 }
+
+async function handleUnsubscribeChannel() {
+  try {
+    await $fetch("/api/channel/subscribed", { method: "DELETE", body: { channelId: store.currentChannelId } });
+    channelSettingsOpen.value = false;
+    store.currentChannelId = null;
+    await store.fetchSubscribedChannels()
+    store.webSocketReconnectFunctor?.call(globalThis)
+  } catch (e) {
+    toast.add({
+      icon: "i-mdi-alpha-x-circle-outline", title: "Failed to unsubscribe channel", timeout: 1000
+    })
+    console.error(e);
+  }
+}
 </script>
 
 <style>
@@ -177,12 +208,11 @@ async function copyInviteLink() {
   width: max(30vw, 40ch);
 }
 
-.channel-button-settings {
-  opacity: 0;
-  margin-left: auto;
+.phidden .expand-button {
+  transform: translateX(200%) rotate(180deg);
 }
 
-.channel-button:hover .channel-button-settings {
-  opacity: 1;
+.phidden {
+  transform: translateX(-100%);
 }
 </style>

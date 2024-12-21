@@ -21,7 +21,7 @@ watch(() => store.currentChannelId, (newId) => {
   }
 })
 
-const { status: wsStatus, data: wsData, send: wsSend } = useWebSocket("/api/channel/ws", {
+const { status: wsStatus, data: wsData, send: wsSend, close: wsClose, open: wsOpen } = useWebSocket("/api/channel/ws", {
   heartbeat: {
     message: JSON.stringify({ type: SocketMesageType.ping }),
     interval: 1000,
@@ -44,16 +44,23 @@ watch(wsData, (newVal) => {
   }
   if (isNewMessageMessage(data)) {
     console.log("Got new message", data.message)
+    data.message.sentDate = new Date(data.message.sentDate);
     if (data.message.channelId === store.currentChannelId) {
       store.currentMessages?.push(data.message)
     } else {
-      // TODO: show notification using system notifications
-      toast.add({
-        title: `${data.message.author.username} @ ${data.message.channelId}`,
-        description: data.message.content,
-        timeout: 3000,
-        avatar: { src: `https://robohash.org/${data.message.author.username}` }
-      })
+      const title = `${data.message.author.username} @ ${store.subscribedChannels?.channels?.find(c => c.id == data.message.channelId)?.name}`;
+      const body = data.message.type == "text" ? data.message.content : "Sent an attachment";
+      const icon = `https://robohash.org/${data.message.author.username}`
+      if (isSystemNofiticationsAllowed()) {
+        showNotification(title, body, icon)
+      } else {
+        toast.add({
+          title,
+          description: body,
+          timeout: 3000,
+          avatar: { src: icon }
+        })
+      }
     }
   }
   if (isDeleteMessageMessage(data)) {
@@ -71,6 +78,11 @@ onMounted(async () => {
       ? store.subscribedChannels.channels[0].id
       : null)
   store.webSocketSendFunctor = wsSend
+  store.webSocketReconnectFunctor = () => {
+    wsClose()
+    wsOpen()
+  }
+  requestNotificationPermission()
 })
 
 </script>

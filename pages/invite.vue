@@ -26,7 +26,6 @@ async function fetchChannel() {
     channel.value = fetchedChannel;
   } catch (err) {
     toast.add({ icon: "i-mdi-alert", title: "Invalid invite code", timeout: 2000 });
-    router.push("/");
   }
 }
 
@@ -37,9 +36,10 @@ async function joinChannel() {
       body: { inviteCode },
     });
     toast.add({ icon: "i-mdi-check-bold", title: "Joined channel", timeout: 2000 });
-    router.push("/");
+    router.replace(`/app?channelId=${channel.value.id}`);
   } catch (err) {
     toast.add({ icon: "i-mdi-alert", title: "Failed to join channel", timeout: 2000 });
+    router.push(`/login`);
   }
 }
 
