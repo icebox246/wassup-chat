@@ -11,6 +11,7 @@
 
       <template #description>
         <FileDownloadButton v-if="message.type == 'file'" :content="message.content" />
+        <ImageAttachment v-else-if="message.type == 'image'" :content="message.content" />
         <span v-else class="dark:text-gray-100 text-gray-800">
           {{ message?.content }}
         </span>

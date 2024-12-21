@@ -39,7 +39,7 @@
       </div>
     </div>
 
-    <FileMessageModal v-model="showFileUploadModal" />
+    <FileMessageModal v-model="showFileUploadModal" :role="fileUploadRole" />
 
     <!-- </main> -->
     <div v-if="showAlert" class="mb-2">
@@ -55,6 +55,7 @@ const showAlert = ref(false)
 const newMessage = ref('')
 const messagesView = ref();
 const showFileUploadModal = ref(false);
+const fileUploadRole = ref("file")
 
 watch(store, () => {
   setTimeout(() => messagesView.value.scrollTo(0, messagesView.value.scrollHeight), 100)
@@ -78,7 +79,8 @@ const uploadItems = [
     icon: 'i-mdi-file-image-box',
     shortcuts: ['I'],
     click: () => {
-      console.log('Image Uploaded')
+      fileUploadRole.value = "image"
+      showFileUploadModal.value = true;
     }
   }],
   [{
@@ -86,6 +88,7 @@ const uploadItems = [
     icon: 'i-mdi-paperclip',
     shortcuts: ['F'],
     click: () => {
+      fileUploadRole.value = "file"
       showFileUploadModal.value = true;
     }
   }]
