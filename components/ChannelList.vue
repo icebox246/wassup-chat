@@ -1,5 +1,7 @@
 <template>
-  <div class="channel-panel flex flex-col p-4 shadow-md items-stretch">
+  <div
+    class="fixed z-40 sm:relative h-full bg-gray-100 dark:bg-gray-900 channel-panel flex flex-col p-4 shadow-md items-stretch dark:border-r border-gray-700 transition-transform"
+    :class="expanded ? '' : 'phidden'" ref="panel">
     <h2 class="text-xl">Channels</h2>
     <div class="flex flex-col p-0 items-stretch grow">
       <div v-if="store.subscribedChannels?.channels" v-for="channel of store.subscribedChannels.channels">
@@ -21,6 +23,9 @@
       </div>
     </div>
     <UButton @click="channelCreationOpen = true" icon="i-mdi-add"> New </UButton>
+
+    <UButton class="absolute sm:hidden top-[6em] right-[1em] transition-transform expand-button"
+      icon="i-mdi-chevron-double-left" @click="expanded = !expanded" />
   </div>
 
   <UModal v-model="channelCreationOpen">
@@ -62,7 +67,12 @@
 
 <script lang="ts" setup>
 import type { Form, FormSubmitEvent } from '#ui/types';
-import type { Channel } from '@prisma/client';
+
+const expanded = ref(true);
+const panel = ref();
+useResizeObserver(panel, () => {
+  expanded.value = true;
+})
 
 const store = useMyAppStore()
 const toast = useToast()
@@ -198,12 +208,11 @@ async function handleUnsubscribeChannel() {
   width: max(30vw, 40ch);
 }
 
-.channel-button-settings {
-  opacity: 0;
-  margin-left: auto;
+.phidden .expand-button {
+  transform: translateX(200%) rotate(180deg);
 }
 
-.channel-button:hover .channel-button-settings {
-  opacity: 1;
+.phidden {
+  transform: translateX(-100%);
 }
 </style>

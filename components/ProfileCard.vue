@@ -1,5 +1,5 @@
 <template>
-  <UPopover v-if="store.loggedIn && store.currentUser" :popper="{ arrow: true }">
+  <UPopover v-if="store.loggedIn && store.currentUser" mode="hover">
     <UButton square size="md" variant="link">
       <template #leading>
         <UAvatar :src="avatarUrl" size="md" />

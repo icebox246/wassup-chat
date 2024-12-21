@@ -23,34 +23,29 @@ export const useMyAppStore = defineStore(
     const webSocketSendFunctor = ref<((data: string) => boolean) | null>(null)
     const webSocketReconnectFunctor = ref<(() => void) | null>(null)
 
-    const { data: currentMessagesData, refresh: refreshMessages, clear: clearMessages } = useLazyFetch(() => `/api/channel/${currentChannelId.value}/messages`);
+    // const { data: currentMessagesData, refresh: refreshMessages, clear: clearMessages } = useLazyFetch(() => `/api/channel/${currentChannelId.value}/messages`);
 
     const currentMessages = ref<Array<Message & { author: User }>>()
 
     watch(currentChannelId, async (newVal) => {
       currentChannel.value = subscribedChannels.value?.channels?.find(c => c.id == currentChannelId.value)
-      if (newVal !== null) {
-        setTimeout(() => refreshMessages(), 10)
-      } else {
-        setTimeout(() => currentMessages.value = new Array(), 10)
-      }
+      // if (newVal !== null) {
+      //   setTimeout(() => clearMessages(), 10)
+      // } else {
+      setTimeout(() => currentMessages.value = new Array(), 10)
+      // }
     })
 
-    watch(currentMessagesData, (newData) => {
-      if (newData?.err || !newData?.messages) return;
-      currentMessages.value = newData?.messages.map(m => {
-        return {
-          ...m,
-          sentDate: new Date(m.sentDate),
-          author: { ...m.author, registeredDate: new Date(m.author.registeredDate) }
-        }
-      });
-    })
-
-    async function fetchCurrentMessages() {
-      clearMessages()
-      await refreshMessages()
-    }
+    // watch(currentMessagesData, (newData) => {
+    //   if (newData?.err || !newData?.messages) return;
+    //   currentMessages.value = newData?.messages.map(m => {
+    //     return {
+    //       ...m,
+    //       sentDate: new Date(m.sentDate),
+    //       author: { ...m.author, registeredDate: new Date(m.author.registeredDate) }
+    //     }
+    //   });
+    // })
 
     const sendMessage = async (content: string, type: string) => {
       if (!content || content === '') {
@@ -86,7 +81,6 @@ export const useMyAppStore = defineStore(
       subscribedChannels,
       fetchSubscribedChannels,
       currentMessages,
-      fetchCurrentMessages,
       sendMessage,
       deleteMessage,
       currentChannelId,
