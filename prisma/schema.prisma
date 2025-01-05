@@ -16,6 +16,7 @@ model User {
   passwordHash   String
   registeredDate DateTime @default(now())
 
+  inviteCode String?    @unique @default(uuid())
   adminedChannels    Channel[] @relation("channelAdmin")
   authoredMessages   Message[]
   subscribedChannels Channel[] @relation("channelMember")

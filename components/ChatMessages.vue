@@ -3,7 +3,7 @@
     <header class="flex place-content-between w-full shadow-sm dark:border-b border-gray-700">
       <UPopover mode="hover">
         <h2 class="text-xl p-4">
-          {{ store.currentChannel?.name }}
+          {{ displayChannelName(store.currentChannel?.name) }}
         </h2>
         <template #panel v-if="store.currentChannel?.topic">
           <div class="p-4">
@@ -98,6 +98,23 @@ const uploadItems = [
     }
   }]
 ]
+
+function displayChannelName(channel: string) {
+  const currentUserName = store.currentUser?.me?.username;
+
+  if (!channel) {
+    return 'Private channel';
+  }
+  const splitted = channel.split(' ');
+  
+  const filtered = splitted.filter(u => u !== currentUserName);
+
+  if (!filtered.length) {
+    return channel;
+  }
+
+  return filtered.join(' ');
+}
 </script>
 
 <style scoped></style>
