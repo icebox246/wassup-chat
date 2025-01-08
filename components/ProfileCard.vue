@@ -27,7 +27,7 @@ const toast = useToast()
 
 const avatarUrl = computed(() => `https://robohash.org/${store.currentUser?.me?.username}`)
 const inviteLink = ref<string | null>(null);
-const inviteCode = computed(() => store.currentUser?.me.inviteCode || '');
+const inviteCode = computed(() => store.currentUser?.me?.inviteCode || 'error');
 
 function copyInviteCode() {
   try {
