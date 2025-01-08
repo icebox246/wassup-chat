@@ -10,6 +10,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@iconify-json/mdi": "^1.2.2",
     "@nuxt/ui": "^2.19.2",
     "@pinia/nuxt": "^0.8.0",
     "@vueuse/core": "^12.0.0",
@@ -18,6 +19,7 @@
     "jose": "^5.9.6",
     "nuxt": "^3.14.1592",
     "pinia": "^2.2.8",
+    "uuid": "^11.0.3",
     "vue": "latest",
     "vue-router": "latest",
     "yup": "^1.4.0"

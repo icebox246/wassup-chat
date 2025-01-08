@@ -72,11 +72,16 @@ watch(wsData, (newVal) => {
 
 onMounted(async () => {
   await store.fetchSubscribedChannels()
-  store.currentChannelId = params.channelId
-    ? Number.parseInt(params.channelId.toString())
-    : (store.subscribedChannels?.channels
-      ? store.subscribedChannels.channels[0].id
-      : null)
+
+  if (params.channelId) {
+    const parsedId = Number.parseInt(params.channelId.toString())
+    store.currentChannelId = isNaN(parsedId) ? null : parsedId
+  } else if (store.subscribedChannels?.channels?.length > 0) {
+    store.currentChannelId = store.subscribedChannels.channels[0].id
+  } else {
+    store.currentChannelId = null
+  }
+
   store.webSocketSendFunctor = wsSend
   store.webSocketReconnectFunctor = () => {
     wsClose()
@@ -84,7 +89,6 @@ onMounted(async () => {
   }
   requestNotificationPermission()
 })
-
 </script>
 
 <style></style>

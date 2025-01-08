@@ -3,7 +3,7 @@
     <header class="flex place-content-between w-full shadow-sm dark:border-b border-gray-700">
       <UPopover mode="hover">
         <h2 class="text-xl p-4">
-          {{ store.currentChannel?.name }}
+          {{ displayChannelName(store.currentChannel as any as (Channel | undefined)) }}
         </h2>
         <template #panel v-if="store.currentChannel?.topic">
           <div class="p-4">
@@ -60,6 +60,8 @@
 </template>
 
 <script lang="ts" setup>
+import type { Channel } from '@prisma/client';
+
 const store = useMyAppStore()
 const showAlert = ref(false)
 const newMessage = ref('')
@@ -98,6 +100,26 @@ const uploadItems = [
     }
   }]
 ]
+
+function displayChannelName(channel?: Channel) {
+  if (!channel) {
+    return 'Private channel';
+  }
+  if (!channel.isDirect) {
+    return channel.name;
+  }
+
+  const currentUserName = store.currentUser?.me?.username;
+  const splitted = channel.name.split(' ');
+
+  const filtered = splitted.filter(u => u !== currentUserName);
+
+  if (!filtered.length) {
+    return channel;
+  }
+
+  return `DM: ${filtered.join(' ')}`;
+}
 </script>
 
 <style scoped></style>
