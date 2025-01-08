@@ -1,55 +1,29 @@
 <template>
   <div
     class="fixed z-40 sm:relative h-full bg-gray-100 dark:bg-gray-900 channel-panel flex flex-col shadow-md dark:border-r border-gray-700 transition-transform"
-    :class="expanded ? '' : 'phidden'"
-    ref="panel"
-  >
+    :class="expanded ? '' : 'phidden'" ref="panel">
     <h2 class="text-xl p-4">Channels</h2>
 
     <div class="flex w-full">
-      <UButton
-        class="flex-1"
-        :color="activeTab === 'public' ? 'primary' : 'gray'"
-        @click="activeTab = 'public'"
-      >
+      <UButton class="flex-1" :color="activeTab === 'public' ? 'primary' : 'gray'" @click="activeTab = 'public'">
         Channels
       </UButton>
-      <UButton
-        class="flex-1"
-        :color="activeTab === 'private' ? 'primary' : 'gray'"
-        @click="activeTab = 'private'"
-      >
+      <UButton class="flex-1" :color="activeTab === 'private' ? 'primary' : 'gray'" @click="activeTab = 'private'">
         Friends
       </UButton>
     </div>
 
     <div class="flex flex-col p-4 grow overflow-auto">
       <div v-if="activeTab === 'public'">
-        <div 
-          v-if="publicChannels.length"
-          v-for="channel in publicChannels"
-          :key="channel.id"
-        >
-          <UButton
-            variant="link"
-            :id="`${channel.id}main`"
-            :icon="store.currentChannelId === channel.id
-              ? 'i-mdi-card-text'
-              : 'i-mdi-card-text-outline'"
-            :color="store.currentChannelId === channel.id ? 'primary' : 'gray'"
-            @click="handleClickOnChannelItem(channel.id)"
-            class="channel-button flex justify-between items-center mb-2"
-          >
+        <div v-if="publicChannels.length" v-for="channel in publicChannels" :key="channel.id">
+          <UButton variant="link" :id="`${channel.id}main`" :icon="store.currentChannelId === channel.id
+            ? 'i-mdi-card-text'
+            : 'i-mdi-card-text-outline'" :color="store.currentChannelId === channel.id ? 'primary' : 'gray'"
+            @click="handleClickOnChannelItem(channel.id)" class="channel-button flex justify-between items-center mb-2">
             <span>{{ channel.name }} (#{{ channel.id }})</span>
             <template #trailing>
-              <UButton
-                @click.stop="openSettingsFor(channel.id, channel.name, channel.topic)"
-                :id="`${channel.id}set`"
-                variant="ghost"
-                icon="i-mdi-cog-outline"
-                color="gray"
-                class="channel-button-settings"
-              />
+              <UButton @click.stop="openSettingsFor(channel.id, channel.name, channel.topic)" :id="`${channel.id}set`"
+                variant="ghost" icon="i-mdi-cog-outline" color="gray" class="channel-button-settings" />
             </template>
           </UButton>
         </div>
@@ -60,31 +34,15 @@
       </div>
 
       <div v-else-if="activeTab === 'private'">
-        <div
-          v-if="privateChannels.length"
-          v-for="channel in privateChannels"
-          :key="channel.id"
-        >
-          <UButton
-            variant="link"
-            :id="`${channel.id}main`"
-            :icon="store.currentChannelId === channel.id
-              ? 'i-mdi-card-text'
-              : 'i-mdi-card-text-outline'"
-            :color="store.currentChannelId === channel.id ? 'primary' : 'gray'"
-            @click="handleClickOnChannelItem(channel.id)"
-            class="channel-button flex justify-between items-center mb-2"
-          >
-            <span>{{ displayChannelName(channel) }} (#{{ channel.id }})</span>
+        <div v-if="privateChannels.length" v-for="channel in privateChannels" :key="channel.id">
+          <UButton variant="link" :id="`${channel.id}main`" :icon="store.currentChannelId === channel.id
+            ? 'i-mdi-card-text'
+            : 'i-mdi-card-text-outline'" :color="store.currentChannelId === channel.id ? 'primary' : 'gray'"
+            @click="handleClickOnChannelItem(channel.id)" class="channel-button flex justify-between items-center mb-2">
+            <span>{{ displayChannelName(channel as any as Channel) }} (#{{ channel.id }})</span>
             <template #trailing>
-              <UButton
-                @click.stop="openSettingsFor(channel.id, channel.name, channel.topic)"
-                :id="`${channel.id}set`"
-                variant="ghost"
-                icon="i-mdi-cog-outline"
-                color="gray"
-                class="channel-button-settings"
-              />
+              <UButton @click.stop="openSettingsFor(channel.id, channel.name, channel.topic)" :id="`${channel.id}set`"
+                variant="ghost" icon="i-mdi-cog-outline" color="gray" class="channel-button-settings" />
             </template>
           </UButton>
         </div>
@@ -94,29 +52,17 @@
       </div>
     </div>
 
-    <UButton
-      class="absolute sm:hidden top-[6em] right-[1em] transition-transform expand-button"
-      :icon="expanded ? 'i-mdi-chevron-double-left' : 'i-mdi-chevron-double-right'"
-      @click="expanded = !expanded"
-    />
+    <UButton class="absolute sm:hidden top-[6em] right-[1em] transition-transform expand-button"
+      :icon="expanded ? 'i-mdi-chevron-double-left' : 'i-mdi-chevron-double-right'" @click="expanded = !expanded" />
 
     <div class="p-4 pt-0 mt-auto">
       <div v-if="activeTab === 'public'" class="flex flex-col space-y-2">
-        <UButton
-          variant="solid"
-          color="primary"
-          @click="publicChannelCreationOpen = true"
-          icon="i-mdi-plus"
-        >
+        <UButton variant="solid" color="primary" @click="publicChannelCreationOpen = true" icon="i-mdi-plus">
           New Channel
         </UButton>
       </div>
       <div v-else-if="activeTab === 'private'" class="flex flex-col space-y-2">
-        <UButton
-          variant="solid"
-          @click="privateChannelCreationOpen = true"
-          icon="i-mdi-plus"
-        >
+        <UButton variant="solid" @click="privateChannelCreationOpen = true" icon="i-mdi-plus">
           Enter Friend Code
         </UButton>
       </div>
@@ -147,37 +93,21 @@
       <template #header>
         <h2 class="text-3xl">Manage Channel</h2>
       </template>
-      <ChannelForm 
-        :mine="store.currentChannel?.adminId === store.currentUser?.me?.id" 
-        v-model:channel="editingState" 
-        @submit="onSettingsSubmit" 
-      />
+      <ChannelForm :mine="store.currentChannel?.adminId === store.currentUser?.me?.id" v-model:channel="editingState"
+        @submit="onSettingsSubmit" />
       <template v-if="store.currentChannel?.adminId === store.currentUser?.me?.id" #footer>
         <div class="flex gap-6">
-          <UButton 
-            v-if="inviteLink" 
-            @click="copyInviteLink" 
-            color="primary" 
-            icon="i-mdi-account-multiple-plus-outline"
-          >
+          <UButton v-if="inviteLink" @click="copyInviteLink" color="primary" icon="i-mdi-account-multiple-plus-outline">
             Copy Invite Link
           </UButton>
-          <UButton 
-            @click="handleDeleteChannel" 
-            icon="i-mdi-trash-can-outline" 
-            color="red"
-          >
+          <UButton @click="handleDeleteChannel" icon="i-mdi-trash-can-outline" color="red">
             Delete Channel
           </UButton>
         </div>
       </template>
       <template v-else #footer>
         <div class="flex gap-6">
-          <UButton 
-            @click="handleUnsubscribeChannel" 
-            icon="i-mdi-logout" 
-            color="red"
-          >
+          <UButton @click="handleUnsubscribeChannel" icon="i-mdi-logout" color="red">
             Unsubscribe Channel
           </UButton>
         </div>
@@ -187,6 +117,7 @@
 </template>
 
 <script lang="ts" setup>
+import type { Channel } from '@prisma/client';
 import { ref, onMounted, computed } from 'vue';
 
 const expanded = ref(true);
@@ -204,7 +135,7 @@ const privateChannelCreationOpen = ref(false);
 const channelSettingsOpen = ref(false);
 
 const editingChannelId = ref<number | null>(null);
-const editingState = ref<any>({ name: '', topic: undefined }); 
+const editingState = ref<any>({ name: '', topic: undefined });
 const inviteLink = ref<string | null>(null);
 
 const activeTab = ref<'public' | 'private'>('public');
@@ -217,7 +148,7 @@ const publicChannels = computed(() => {
 
 const privateChannels = computed(() => {
   return store.subscribedChannels?.channels?.filter(
-    (channel: any) => channel.isDirect === true
+    (channel) => channel.isDirect === true
   ) ?? [];
 });
 
@@ -396,16 +327,16 @@ async function copyInviteLink() {
   if (inviteLink.value) {
     try {
       await navigator.clipboard.writeText(inviteLink.value);
-      toast.add({ 
-        icon: "i-mdi-check-bold", 
-        title: "Invite link copied", 
-        timeout: 2000 
+      toast.add({
+        icon: "i-mdi-check-bold",
+        title: "Invite link copied",
+        timeout: 2000
       });
     } catch (err) {
-      toast.add({ 
-        icon: "i-mdi-alert", 
-        title: "Failed to copy invite link", 
-        timeout: 2000 
+      toast.add({
+        icon: "i-mdi-alert",
+        title: "Failed to copy invite link",
+        timeout: 2000
       });
     }
   }
@@ -413,9 +344,9 @@ async function copyInviteLink() {
 
 async function handleUnsubscribeChannel() {
   try {
-    await $fetch("/api/channel/subscribed", { 
-      method: "DELETE", 
-      body: { channelId: store.currentChannelId } 
+    await $fetch("/api/channel/subscribed", {
+      method: "DELETE",
+      body: { channelId: store.currentChannelId }
     });
     channelSettingsOpen.value = false;
     store.currentChannelId = null;
@@ -431,7 +362,7 @@ async function handleUnsubscribeChannel() {
   }
 }
 
-function displayChannelName(channel: any) {
+function displayChannelName(channel: Channel) {
   if (!channel.isDirect) {
     return channel.name;
   }
@@ -442,11 +373,11 @@ function displayChannelName(channel: any) {
     return 'Private channel';
   }
   const splitted = channel.name.split(' ');
-  
+
   const filtered = splitted.filter(u => u !== currentUserName);
 
   if (!filtered.length) {
-    return channel.name;
+    return `DM: ${channel.name}`;
   }
 
   return filtered.join(' ');
@@ -482,4 +413,3 @@ onMounted(async () => {
   padding: 0;
 }
 </style>
-
