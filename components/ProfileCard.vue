@@ -8,12 +8,12 @@
     </UButton>
 
     <template #panel>
-      <div class="p-4">
-        <UButton @click="handleLogout" icon="i-mdi-logout">
-          Logout
-        </UButton>
+      <div class="grid gap-2 grid-cols-1 p-4">
         <UButton @click="copyInviteCode" color="primary" icon="i-mdi-account-multiple-plus-outline">
           Add friend
+        </UButton>
+        <UButton @click="handleLogout" icon="i-mdi-logout" variant="outline">
+          Logout
         </UButton>
       </div>
     </template>
