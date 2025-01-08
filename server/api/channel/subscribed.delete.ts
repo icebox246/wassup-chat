@@ -32,6 +32,10 @@ export default defineEventHandler(async (event) => {
       }
     })
 
+    if ((await prisma.channel.findUnique({ where: { id: channelId }, include: { members: true } }))?.members.length === 0) {
+      await prisma.channel.delete({ where: { id: channelId } });
+    }
+
     return "ok"
   } catch (err) {
     console.error(err)
