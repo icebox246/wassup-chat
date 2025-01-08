@@ -39,7 +39,11 @@
             ? 'i-mdi-card-text'
             : 'i-mdi-card-text-outline'" :color="store.currentChannelId === channel.id ? 'primary' : 'gray'"
             @click="handleClickOnChannelItem(channel.id)" class="channel-button flex justify-between items-center mb-2">
-            <span>{{ displayChannelName(channel as any as Channel) }} (#{{ channel.id }})</span>
+            <span>
+              <UAvatar size="xs" class="mr-1"
+                :src="`https://robohash.org/${displayChannelName(channel as any as Channel)}`" />
+              {{ displayChannelName(channel as any as Channel) }} (#{{ channel.id }})
+            </span>
             <template #trailing>
               <UButton @click.stop="openSettingsFor(channel.id, channel.name, channel.topic)" :id="`${channel.id}set`"
                 variant="ghost" icon="i-mdi-cog-outline" color="gray" class="channel-button-settings" />
@@ -89,7 +93,7 @@
   </UModal>
 
   <UModal v-model="channelSettingsOpen">
-    <UCard>
+    <UCard v-if="activeTab == 'public'">
       <template #header>
         <h2 class="text-3xl">Manage Channel</h2>
       </template>
@@ -112,6 +116,14 @@
           </UButton>
         </div>
       </template>
+    </UCard>
+    <UCard v-else-if="activeTab == 'private'">
+      <p>
+        Do you want to leave direct message channel?
+      </p>
+      <UButton @click="handleUnsubscribeChannel" icon="i-mdi-logout" color="red">
+        Leave Channel
+      </UButton>
     </UCard>
   </UModal>
 </template>
@@ -377,7 +389,7 @@ function displayChannelName(channel: Channel) {
   const filtered = splitted.filter(u => u !== currentUserName);
 
   if (!filtered.length) {
-    return `DM: ${channel.name}`;
+    return channel.name;
   }
 
   return filtered.join(' ');
