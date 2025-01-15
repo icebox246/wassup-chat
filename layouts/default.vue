@@ -13,3 +13,17 @@
         </main>
     </div>
 </template>
+
+
+<script lang="ts" setup>
+useHead({
+  title: "WassupChat",
+  link: [
+    {
+      rel: "icon",
+      href: "/chat.svg",
+      type: "image/svg",
+    },
+  ],
+})
+</script>

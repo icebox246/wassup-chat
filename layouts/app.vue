@@ -7,7 +7,16 @@
 </template>
 
 <script lang="ts" setup>
-
+useHead({
+  title: "WassupChat: Chat",
+  meta: [
+    {
+      rel: "icon",
+      href: "/chat.svg",
+      type: "image/svg",
+    },
+  ],
+})
 </script>
 
 <style></style>
