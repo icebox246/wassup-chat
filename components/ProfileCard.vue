@@ -29,9 +29,9 @@ const avatarUrl = computed(() => `https://robohash.org/${store.currentUser?.me?.
 const inviteLink = ref<string | null>(null);
 const inviteCode = computed(() => store.currentUser?.me?.inviteCode || 'error');
 
-function copyInviteCode() {
+async function copyInviteCode() {
   try {
-    navigator.clipboard.writeText(inviteCode.value);
+    await navigator.clipboard.writeText(inviteCode.value);
     alert('Invite Code copied!');
   } catch (err) {
     console.error('Failed to copy invite code:', err);

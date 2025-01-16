@@ -2,6 +2,8 @@
 
 Simple chatting application allowing for group and direct conversations implemented in [Nuxt.js](https://nuxt.com/).
 
+![screenshot](./screenshot.png)
+
 ## Setup
 
 Make sure to install dependencies:
@@ -32,10 +34,10 @@ Build the application for production:
 pnpm build
 ```
 
-Locally preview production build:
+Locally preview production build (setting all required environment variables):
 
 ```bash
-pnpm preview
+./run_release.sh
 ```
 
 Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
